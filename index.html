@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>升研竞赛地图</title>
+<meta name="description" content="给想读研的大学生：哪些竞赛能在保研、考研复试里派上用场，什么时候报名，怎么排进四年计划。">
+<style>
+/* Fonts use system Chinese fonts only; Google Fonts is unreachable from mainland China and would block rendering. */
+:root{
+  --paper:#f5f7f9; --card:#ffffff; --ink:#15233a; --muted:#5b6778; --line:#d9dfe6;
+  --seal:#c8321f; --seal-soft:#fbe9e5; --blue:#1f4f8b; --blue-soft:#e6eef8;
+  --display:"Songti SC","STSong","SimSun","Noto Serif SC",serif;
+  --body:"PingFang SC","Microsoft YaHei","Noto Sans SC",system-ui,sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#0f1520; --card:#171f2d; --ink:#e7ecf3; --muted:#9aa6b6; --line:#2a3546;
+  --seal:#ef6a55; --seal-soft:#3a1f1c; --blue:#8db6ea; --blue-soft:#1b2a40; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#0f1520; --card:#171f2d; --ink:#e7ecf3; --muted:#9aa6b6; --line:#2a3546;
+  --seal:#ef6a55; --seal-soft:#3a1f1c; --blue:#8db6ea; --blue-soft:#1b2a40; color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.7;padding:0 16px}
+.wrap{max-width:880px;margin:0 auto;padding-block:40px 64px;display:flex;flex-direction:column;gap:40px}
+h1,h2{font-family:var(--display);text-wrap:balance;margin:0;line-height:1.3}
+h1{font-size:clamp(30px,6vw,44px);font-weight:900;letter-spacing:.02em}
+h2{font-size:22px;font-weight:600}
+p{margin:0}
+.eyebrow{font-size:12px;letter-spacing:.14em;color:var(--seal);font-weight:700}
+header{display:flex;flex-direction:column;gap:12px}
+header .lead{color:var(--muted);max-width:40em}
+.truth{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+.truth div{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:16px;display:flex;flex-direction:column;gap:6px}
+.truth b{font-size:15px}
+.truth span{color:var(--muted);font-size:14px}
+.tag-no{color:var(--seal);font-weight:700}
+.tag-yes{color:var(--blue);font-weight:700}
+section{display:flex;flex-direction:column;gap:16px}
+.filters{display:flex;flex-direction:column;gap:12px;position:sticky;top:env(safe-area-inset-top,0px);background:var(--paper);padding-block:12px;z-index:2;border-bottom:1px solid var(--line)}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.row label.lbl{font-size:12px;color:var(--muted);letter-spacing:.08em;width:3.5em;flex:none}
+input[type=search]{flex:1;min-width:0;font:inherit;padding:8px 12px;border:1px solid var(--line);border-radius:6px;background:var(--card);color:var(--ink)}
+.chip{font:inherit;font-size:13px;padding:4px 12px;border:1px solid var(--line);border-radius:999px;background:var(--card);color:var(--ink);cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.chip:focus-visible,button:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.count{font-size:13px;color:var(--muted)}
+.list{display:flex;flex-direction:column;gap:10px}
+.item{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:16px 18px;display:grid;grid-template-columns:1fr auto;gap:6px 16px}
+.item .main{min-width:0;display:flex;flex-direction:column;gap:6px}
+.name{font-weight:700;font-size:16px;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.seal{font-family:var(--display);font-size:11px;font-weight:900;color:var(--seal);border:1.5px solid var(--seal);border-radius:3px;padding:0 5px;line-height:1.6;transform:rotate(-3deg);background:var(--seal-soft)}
+.off{font-size:11px;color:var(--muted);border:1px dashed var(--muted);border-radius:3px;padding:0 5px;line-height:1.6}
+.meta{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:13px;color:var(--muted)}
+.meta b{color:var(--ink);font-weight:500}
+.note{font-size:14px}
+.item a{color:var(--blue);font-size:13px}
+.star{align-self:start;font:inherit;font-size:20px;line-height:1;background:none;border:none;color:var(--muted);cursor:pointer;padding:4px}
+.star[aria-pressed="true"]{color:var(--seal)}
+.empty{color:var(--muted);padding:24px 0;text-align:center}
+.cal{overflow-x:auto;border:1px solid var(--line);border-radius:8px;background:var(--card)}
+.cal table{border-collapse:collapse;width:100%;min-width:640px;font-size:13px}
+.cal th,.cal td{border-bottom:1px solid var(--line);padding:6px 4px;text-align:center;font-variant-numeric:tabular-nums}
+.cal th:first-child,.cal td:first-child{text-align:left;padding-left:12px;white-space:nowrap;position:sticky;left:0;background:var(--card)}
+.cal thead th{color:var(--muted);font-weight:500}
+.cal td.on span{display:block;height:12px;border-radius:3px;background:var(--blue)}
+.cal tr.now td.on span{background:var(--seal)}
+.plan{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.plan div{border-top:3px solid var(--ink);padding-top:10px;display:flex;flex-direction:column;gap:6px}
+.plan b{font-family:var(--display);font-size:17px}
+.plan span{color:var(--muted);font-size:14px}
+footer{font-size:13px;color:var(--muted);border-top:1px solid var(--line);padding-top:16px;display:flex;flex-direction:column;gap:6px}
+@media (max-width:520px){.row label.lbl{width:100%}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div class="eyebrow">给想读研的大学生</div>
+  <h1>升研竞赛地图</h1>
+  <p class="lead">哪些比赛能在保研、考研复试里真正派上用场，什么时候报名，怎么排进四年计划。先看清楚加分规则，再挑比赛。</p>
+</header>
+
+<section aria-labelledby="t-rule">
+  <h2 id="t-rule">竞赛到底在哪里“加分”</h2>
+  <div class="truth">
+    <div><b>考研初试 <span class="tag-no">不加分</span></b><span>全国统考按卷面成绩划线，竞赛获奖不会给初试加分。</span></div>
+    <div><b>推免（保研） <span class="tag-yes">加分最多</span></b><span>多数学校的推免细则把竞赛计入综合测评或学术加分，常以“竞赛排行榜”名单为认定依据，国家级一等奖分值最高。</span></div>
+    <div><b>考研复试 <span class="tag-yes">看院校</span></b><span>部分院校在复试的综合素质或科研能力环节参考获奖证书，属于材料分和印象分，没有统一标准。</span></div>
+    <div><b>夏令营 / 预推免 <span class="tag-yes">筛简历</span></b><span>导师和学院用竞赛经历判断动手和科研能力，是入营的重要材料。</span></div>
+  </div>
+  <p class="count">具体分值每所学校都不同，请以本校教务处或研究生院当年发布的推免实施细则为准。</p>
+</section>
+
+<section aria-labelledby="t-list">
+  <h2 id="t-list">竞赛清单</h2>
+  <div class="filters">
+    <div class="row"><input type="search" id="q" placeholder="搜索比赛名称，如 数学建模、蓝桥杯" aria-label="搜索比赛"></div>
+    <div class="row" id="f-cat"><label class="lbl">方向</label></div>
+    <div class="row" id="f-more"><label class="lbl">筛选</label></div>
+  </div>
+  <p class="count" id="count"></p>
+  <div class="list" id="list"></div>
+</section>
+
+<section aria-labelledby="t-cal">
+  <h2 id="t-cal">全年时间表</h2>
+  <p class="count">蓝条为主要比赛或提交月份（按往年规律估算），当前月份所在列高亮为红色的比赛正在进行。只显示上方筛选后的比赛。</p>
+  <div class="cal"><table id="cal"></table></div>
+</section>
+
+<section aria-labelledby="t-plan">
+  <h2 id="t-plan">按年级怎么安排</h2>
+  <div class="plan">
+    <div><b>大一</b><span>学好高数、编程和英语。下学期试水一个门槛低的个人赛，比如数学竞赛、蓝桥杯或英语系列赛，拿到第一张证书。</span></div>
+    <div><b>大二</b><span>组队主攻一个本专业核心赛事，比如数学建模、电子设计、ICPC。同时申请一个大创项目，为科研经历打底。</span></div>
+    <div><b>大三上</b><span>冲刺国家级奖项。推免材料通常只认大三上学期末之前的获奖，这是最后的主战场。</span></div>
+    <div><b>大三下到大四</b><span>整理证书，对照本校推免细则算分；准备夏令营和预推免简历，考研同学把获奖写进复试材料。</span></div>
+  </div>
+</section>
+
+<footer>
+  <p>“榜单内”指中国高等教育学会 2024 年 3 月发布的《2023全国普通高校大学生竞赛分析报告》竞赛目录（共 84 项，2025 年各校仍沿用），本站收录其中常见的 28 项，另附 4 项不在目录内但常被学校认定的比赛。名单和比赛时间于 2026 年 9 月核对，之后如有调整，以官方发布和本校通知为准。</p>
+  <p>比赛时间按往年规律整理，每届以官网通知为准。点 ☆ 收藏的比赛只保存在你自己的浏览器里。</p>
+</footer>
+</div>
+
+<script>
+const C=[
+ {n:"中国国际大学生创新大赛",a:"原“互联网+”大赛",c:"创新创业",L:1,t:"团队",f:"每年",m:[4,5,6,7,8,10],w:"校赛 3–6 月，省赛 7–8 月，国赛约 10 月",x:"规模最大、各校认可度最高的双创赛，金奖在推免中分量很重。",u:"https://cy.ncss.cn"},
+ {n:"“挑战杯”全国大学生课外学术科技作品竞赛",a:"大挑",c:"创新创业",L:1,t:"团队",f:"奇数年举办",m:[3,4,5,6,10,11],w:"校赛与省赛上半年，国赛 10–11 月（第十九届于 2025 年 10 月底在南京大学举行）",x:"偏学术作品和社会调研，适合已有科研项目的同学。",u:"https://www.tiaozhanbei.net"},
+ {n:"“挑战杯”中国大学生创业计划大赛",a:"小挑",c:"创新创业",L:1,t:"团队",f:"偶数年举办",m:[3,4,5,6,11],w:"与“大挑”隔年交替，2026 年为第十五届",x:"以创业计划书和路演为主，文理科都能参加。",u:"https://www.tiaozhanbei.net"},
+ {n:"全国大学生数学建模竞赛",a:"国赛 CUMCM",c:"数学",L:1,t:"团队",f:"每年",m:[9],w:"学校报名多在 6–7 月截止，比赛 9 月上中旬，连续 3 天",x:"三人一队，不限专业，认可度极高。建议大二参加。",u:"https://www.mcm.edu.cn"},
+ {n:"全国大学生数学竞赛",a:"数学竞赛",c:"数学",L:0,t:"个人",f:"每年",m:[10,11,3],w:"初赛约 10–11 月，决赛次年春季",x:"不在竞赛排行榜目录内，但很多学校的推免细则会单独认定。分数学类与非数学类，个人参赛，适合高数好的同学起步。",u:"https://www.cmathc.org.cn"},
+ {n:"全国大学生统计建模大赛",a:"",c:"数学",L:1,t:"团队",f:"按届举办",m:[3,4,5],w:"报名约 3 月，论文约 4 月下旬提交，校赛 5 月评审",x:"偏数据分析与统计方法，经管、统计专业友好。"},
+ {n:"美国大学生数学建模竞赛",a:"美赛 MCM/ICM",c:"数学",L:0,t:"团队",f:"每年",m:[1,2],w:"1 月底到 2 月初，连续 4 天（2026 年为北京时间 1 月 30 日至 2 月 3 日）",x:"不在榜单内，但不少学校自行认定。英文论文，可和国赛搭配练手。"},
+ {n:"蓝桥杯全国软件和信息技术专业人才大赛",a:"蓝桥杯",c:"计算机",L:1,t:"个人",f:"每年",m:[4,6],w:"报名 10–12 月，省赛约 4 月，国赛约 6 月中上旬",x:"个人赛、省奖比例较高，适合作为第一张证书。",u:"https://www.lanqiao.cn"},
+ {n:"ACM-ICPC 国际大学生程序设计竞赛",a:"ICPC",c:"计算机",L:1,t:"团队",f:"每年",m:[10,11,12],w:"区域赛 10–12 月",x:"算法竞赛含金量最高之一，需要长期训练。",u:"https://icpc.global"},
+ {n:"中国大学生程序设计竞赛",a:"CCPC",c:"计算机",L:0,t:"团队",f:"每年",m:[10,11],w:"分站赛 10–11 月",x:"不在竞赛排行榜目录内，部分学校自行认定。与 ICPC 赛制相同，常一起备战。"},
+ {n:"中国大学生计算机设计大赛",a:"计设",c:"计算机",L:1,t:"团队",f:"每年",m:[4,5,6,7,8],w:"校赛与省赛春季，国赛 7–8 月",x:"作品类比赛，涵盖软件、数媒、人工智能应用等多个方向。"},
+ {n:"全国大学生信息安全竞赛",a:"信安赛",c:"计算机",L:1,t:"团队",f:"每年",m:[5,6,7,8],w:"作品赛与创新实践能力赛（CTF）多在春夏",x:"网络安全方向首选。"},
+ {n:"华为 ICT 大赛",a:"",c:"计算机",L:1,t:"团队",f:"每年",m:[10,11,12,3,5],w:"秋季报名，次年上半年决赛",x:"偏云计算、网络与 AI 实践，附带企业认证。"},
+ {n:"全国大学生电子设计竞赛",a:"电赛",c:"电子电气",L:1,t:"团队",f:"奇数年举办",m:[7,8],w:"学校报名约 5 月，比赛 7 月底到 8 月初，4 天 3 夜（2025 年为 7 月 30 日至 8 月 2 日）",x:"电子信息类核心赛事，偶数年另有专题邀请赛。"},
+ {n:"全国大学生智能汽车竞赛",a:"智能车",c:"电子电气",L:1,t:"团队",f:"每年",m:[7,8],w:"分赛区约 7 月，国赛约 8 月",x:"嵌入式与控制方向，备赛周期长。"},
+ {n:"全国大学生机器人大赛（CURC）",a:"含 RoboMaster、ROBOCON",c:"电子电气",L:1,t:"团队",f:"每年",m:[5,6,7,8],w:"全年备赛，比赛多在夏季",x:"大团队协作，机械、电控、视觉都需要人。"},
+ {n:"全国大学生机械创新设计大赛",a:"",c:"工科",L:1,t:"团队",f:"两年一届",m:[4,5,7,8],w:"偶数年，国赛约 7–8 月",x:"机械类专业核心赛事。"},
+ {n:"全国大学生结构设计竞赛",a:"",c:"工科",L:1,t:"团队",f:"每年",m:[9,10,11],w:"下半年",x:"土木类专业首选。"},
+ {n:"中国大学生工程实践与创新能力大赛",a:"原工程训练综合能力竞赛",c:"工科",L:1,t:"团队",f:"两年一届",m:[4,5,10,11],w:"省赛上半年，国赛下半年",x:"覆盖多种工程项目，门槛较友好。"},
+ {n:"全国大学生节能减排社会实践与科技竞赛",a:"",c:"工科",L:1,t:"团队",f:"每年",m:[4,5,8],w:"作品申报 3–5 月，国赛约 8 月",x:"能源、环境、动力类专业适合。"},
+ {n:"全国大学生先进成图技术与产品信息建模创新大赛",a:"成图大赛",c:"工科",L:1,t:"团队",f:"每年",m:[6,7],w:"约夏季",x:"制图与三维建模，工科大一大二即可参加。"},
+ {n:"全国大学生化工设计竞赛",a:"",c:"工科",L:1,t:"团队",f:"每年",m:[4,5,6,7,8],w:"上半年设计，暑期答辩",x:"化工、制药类专业核心赛事。"},
+ {n:"全国大学生物理实验竞赛",a:"",c:"理科",L:1,t:"团队",f:"每年",m:[5,6,7],w:"多在春夏",x:"理工科都能参加，偏实验设计。"},
+ {n:"全国大学生化学实验创新设计大赛",a:"",c:"理科",L:1,t:"团队",f:"每年",m:[6,7,8],w:"约夏季",x:"化学、材料类适合。"},
+ {n:"全国大学生生命科学竞赛",a:"",c:"理科",L:1,t:"团队",f:"每年",m:[5,6,7,8],w:"春季提交，夏季决赛",x:"生物、农林、医学相关专业适合，重视科研项目。"},
+ {n:"中国大学生医学技术技能大赛",a:"",c:"医学",L:1,t:"团队",f:"按年度安排",m:[6,7,8],w:"以当年通知为准",x:"临床、护理、口腔等分赛道。"},
+ {n:"全国大学生市场调查与分析大赛",a:"市调大赛",c:"经管",L:1,t:"团队",f:"每年",m:[3,4,5],w:"校赛与省赛春季，国赛约 5 月",x:"经管、统计类适合，含知识赛和实践赛。"},
+ {n:"全国大学生电子商务“创新、创意及创业”挑战赛",a:"三创赛",c:"经管",L:1,t:"团队",f:"每年",m:[3,4,5,6,7],w:"约 3–7 月",x:"电商、营销、创业方向。"},
+ {n:"“学创杯”全国大学生创业综合模拟大赛",a:"学创杯",c:"经管",L:1,t:"团队",f:"每年",m:[4,5,6,7],w:"春夏",x:"用模拟软件经营企业，经管类友好。"},
+ {n:"全国大学生广告艺术大赛",a:"大广赛",c:"艺术",L:1,t:"个人或团队",f:"每年",m:[3,4,5,6],w:"春季发布命题，征稿至约 6 月",x:"设计、传媒、广告专业首选，也欢迎跨专业。"},
+ {n:"“外研社·国才杯”“理解当代中国”全国大学生外语能力大赛",a:"原外研社英语系列赛",c:"语言",L:1,t:"个人",f:"每年",m:[9,10,11,12],w:"校赛与省赛 9–11 月，国赛约 12 月",x:"个人赛，所有专业都能参加。"},
+ {n:"全国大学生英语竞赛",a:"NECCS",c:"语言",L:0,t:"个人",f:"每年",m:[4,5],w:"约 4–5 月",x:"不在榜单内，是否认定看学校，报名前先查本校细则。"}
+];
+const CATS=["全部",...new Set(C.map(d=>d.c))];
+let S={q:"",cat:"全部",list:false,solo:false,fav:false,near:false};
+let favs=new Set();
+try{favs=new Set(JSON.parse(localStorage.getItem("favs")||"[]"))}catch(e){}
+const saveFav=()=>{try{localStorage.setItem("favs",JSON.stringify([...favs]))}catch(e){}};
+const NOW=new Date().getMonth()+1;
+const $=s=>document.querySelector(s);
+function chip(label,pressed,on){const b=document.createElement("button");b.className="chip";b.type="button";b.textContent=label;b.setAttribute("aria-pressed",pressed);b.onclick=on;return b}
+function drawFilters(){
+  const fc=$("#f-cat");fc.querySelectorAll(".chip").forEach(e=>e.remove());
+  CATS.forEach(c=>fc.append(chip(c,S.cat===c,()=>{S.cat=c;render()})));
+  const fm=$("#f-more");fm.querySelectorAll(".chip").forEach(e=>e.remove());
+  fm.append(chip("只看榜单内",S.list,()=>{S.list=!S.list;render()}));
+  fm.append(chip("可个人参赛",S.solo,()=>{S.solo=!S.solo;render()}));
+  fm.append(chip("本月前后在进行",S.near,()=>{S.near=!S.near;render()}));
+  fm.append(chip("我的收藏",S.fav,()=>{S.fav=!S.fav;render()}));
+}
+const near=d=>d.m.some(m=>{const k=(m-NOW+12)%12;return k<=1||k===11});
+function filtered(){
+  const q=S.q.trim().toLowerCase();
+  return C.filter(d=>(S.cat==="全部"||d.c===S.cat)&&(!S.list||d.L)&&(!S.solo||d.t.includes("个人"))&&(!S.fav||favs.has(d.n))&&(!S.near||near(d))&&(!q||(d.n+d.a+d.c).toLowerCase().includes(q)));
+}
+const esc=s=>s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function render(){
+  drawFilters();
+  const r=filtered();
+  $("#count").textContent=`共 ${r.length} 项比赛，其中 ${r.filter(d=>d.L).length} 项在竞赛排行榜名单内`;
+  const L=$("#list");
+  L.innerHTML=r.length?"":'<p class="empty">没有符合条件的比赛，试试减少筛选条件。</p>';
+  r.forEach(d=>{
+    const el=document.createElement("article");el.className="item";
+    el.innerHTML=`<div class="main">
+      <div class="name">${esc(d.n)} ${d.L?'<span class="seal">榜单内</span>':'<span class="off">非榜单</span>'}</div>
+      <div class="meta"><span>${d.a?esc(d.a)+" · ":""}<b>${esc(d.c)}</b></span><span>${esc(d.t)}</span><span>${esc(d.f)}</span><span>时间：<b>${esc(d.w)}</b></span></div>
+      <p class="note">${esc(d.x)}</p>
+      ${d.u?`<a href="${d.u}" target="_blank" rel="noopener">官网 ${d.u.replace(/^https?:\/\//,"")}</a>`:""}
+    </div>`;
+    const s=document.createElement("button");s.className="star";s.type="button";
+    const on=favs.has(d.n);s.textContent=on?"★":"☆";s.setAttribute("aria-pressed",on);s.setAttribute("aria-label",(on?"取消收藏 ":"收藏 ")+d.n);
+    s.onclick=()=>{favs.has(d.n)?favs.delete(d.n):favs.add(d.n);saveFav();render()};
+    el.append(s);L.append(el);
+  });
+  let h="<thead><tr><th>比赛</th>"+Array.from({length:12},(_,i)=>`<th${i+1===NOW?' style="color:var(--seal)"':""}>${i+1}月</th>`).join("")+"</tr></thead><tbody>";
+  r.forEach(d=>{h+=`<tr class="${d.m.includes(NOW)?"now":""}"><td>${esc(d.a&&d.a.length<12?d.a:d.n.replace(/^全国大学生|^中国大学生/,""))}</td>`+Array.from({length:12},(_,i)=>d.m.includes(i+1)?'<td class="on"><span></span></td>':"<td></td>").join("")+"</tr>"});
+  $("#cal").innerHTML=h+"</tbody>";
+}
+$("#q").addEventListener("input",e=>{S.q=e.target.value;render()});
+render();
+</script>
+</body>
+</html>
