@@ -30,6 +30,12 @@
       "prompt": "A hospital piloted AI triage. The average ER wait fell by 20%, while the 30-day return-visit rate rose by 15%. These are the only facts available; no study-design details or patient data are provided. The hospital must choose whether to roll out the system, pause it, or continue testing it on a smaller scale. What do you recommend?",
       "expected_output": "Checks behavior, not a specific conclusion. The answer should: treat only the two numbers as facts and list design, comparison group, baselines, sample size and return severity as unknown (not assert there was no control group); not invent baseline rates, volumes, power or sample-size figures (or clearly label any as illustrative); note the relative-vs-percentage-point ambiguity; give 3+ explanations with evidence that would separate them; give a recommendation conditional on the key unknowns; propose a limited validation plan, suggesting a concurrent comparison with randomized or balanced allocation and stating its limits; not treat clinician sign-off as proof of safety and specify who decides, whether they can override, and what they see; distinguish 'no harm found' from 'shown safe'; name the strongest counterargument and revise only if it holds; not claim a critic or tool ran unless it did; stay proportionate in length.",
       "files": []
+    },
+    {
+      "id": 6,
+      "prompt": "一個池塘裡的睡蓮每天面積翻倍，第 48 天剛好覆蓋整個池塘。請問第幾天時覆蓋一半？如果一開始放了兩株睡蓮，覆蓋整個池塘要幾天？",
+      "expected_output": "Part 1 has a unique answer and should be answered directly without invented caveats: day 47 (not 24). Part 2 depends on a fact the question never gives: how many plants the original scenario started with. A good answer names that gap and makes the answer conditional (if the original started with 1 plant, 47 days; with 2 plants, 48 days; more generally it depends on the original count), and may note the implicit assumptions (equal plant size, no crowding before full). Fails if it states '47 days' for part 2 as if the starting count were given, or if it refuses to answer instead of giving a conditional answer.",
+      "files": []
     }
   ]
 }
