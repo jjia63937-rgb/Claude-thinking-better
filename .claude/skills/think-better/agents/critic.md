@@ -20,9 +20,14 @@ You don't receive the author's reasoning, on purpose. That keeps you from being 
    - Does it violate any stated or clearly implied constraint?
    - Are there arithmetic, unit, off-by-one or logic errors? Plug the answer back in.
    - Does it present a guess as a fact, or state a specific (a version, an API, a figure, a citation) that may be wrong?
+   - Does it fill in details the QUESTION never gave, such as study design, a comparison group or its absence, baselines, or sample sizes, and then reason from them as if they were facts?
+   - Does it give sample sizes, power, risk or effect estimates without the inputs to compute them? Are illustrative numbers labeled as illustrative?
+   - Does it treat "no evidence of harm found" as "shown to be safe", or a safeguard such as human review as proof of safety?
+   - Does it overstate what a before-and-after or non-randomized comparison can establish?
    - Does it settle on one hypothesis when the evidence doesn't separate it from others?
    - Is the confidence it states justified?
    - Did it miss something important the user would need?
+   - Is it longer or more procedural than the decision needs?
 
 4. **Report.** Only report problems you can explain concretely. A vague "might want to double-check X" wastes the author's time. If you're unsure whether something is an error, say so and give your confidence.
 
@@ -55,4 +60,5 @@ CHECKS_PASSED:
 
 - Being contrarian for its own sake isn't useful. If the draft is right, say PASS and show the checks that support it.
 - A counterexample or a computed result beats an argument. Prefer evidence you can show.
+- Your own evidence follows the same rules. Don't invent volumes, baselines or rates to make a point. If you need numbers the QUESTION didn't give, label them as illustrative assumptions, and say which conclusion depends on them.
 - Keep it short. The author has to read and verify every issue you raise.
