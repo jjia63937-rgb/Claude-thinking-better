@@ -9,6 +9,8 @@ Skills that help Claude think more carefully: catch the trap in a familiar-looki
 
 The first skill is **`think-better`**.
 
+**Quick install:** [⬇️ think-better.zip](https://github.com/jjia63937-rgb/Claude-thinking-better/releases/latest/download/think-better.zip) for the Claude apps · `/plugin marketplace add jjia63937-rgb/Claude-thinking-better` for Claude Code · `npx skills add jjia63937-rgb/Claude-thinking-better` for other agents. Details in [Install](#install).
+
 ## What it does
 
 Most reasoning mistakes come from the process, not from missing knowledge: answering a slightly different question than the one asked, settling on the first idea, filling gaps with assumptions, or skipping the check at the end. `think-better` gives Claude a short routine that catches those mistakes, and scales it to the question so easy things stay quick.
@@ -21,6 +23,16 @@ Most reasoning mistakes come from the process, not from missing knowledge: answe
 | A decision on thin evidence ("wait time fell 20%, returns rose 15%") | Invented baselines, power estimates, "human review makes it safe" | States what's known and unknown, competing explanations with the evidence that would separate them, a conditional recommendation, and a cheap check that could change it |
 | "Are you sure?" | Caves, or digs in | Re-derives the answer and changes it only for a real flaw |
 
+**Use it when:**
+
+- a question looks like a famous puzzle, or involves rates, averages, percentages or counting
+- a question leaves out a fact the answer depends on
+- you're debugging and a cause seems "obvious"
+- you need a recommendation or decision that someone will act on
+- you're asking "are you sure?" or want an answer double-checked
+
+It stays out of the way for lookups, casual chat and one-step edits.
+
 The routine:
 
 1. **Calibrate** how much thinking the question needs, and decide whether to plan before acting on multi-step tasks.
@@ -32,12 +44,11 @@ The routine:
 
 ## Install
 
-Download the latest `think-better.zip` (or `think-better.skill`) from **[Releases](https://github.com/jjia63937-rgb/Claude-thinking-better/releases/latest)**.
-
 ### Claude apps (claude.ai, desktop)
 
-1. Go to **Settings → Capabilities → Skills**.
-2. Click **Upload skill** and choose `think-better.zip`.
+1. Download **[think-better.zip](https://github.com/jjia63937-rgb/Claude-thinking-better/releases/latest/download/think-better.zip)** from the latest release.
+   Use this file, not the **Source code** archives GitHub adds to every release: those contain the whole repository and can't be uploaded as a skill.
+2. Open **[claude.ai/settings/capabilities](https://claude.ai/settings/capabilities)** (Settings → Capabilities), find **Skills**, click **Upload skill** and choose `think-better.zip`.
 3. Make sure its toggle is on.
 
 If you don't see Skills in Settings, your plan or organization may not have skills enabled. See [Using skills in Claude](https://support.claude.com/en/articles/12512180-using-skills-in-claude).
@@ -47,6 +58,14 @@ If you don't see Skills in Settings, your plan or organization may not have skil
 ```
 /plugin marketplace add jjia63937-rgb/Claude-thinking-better
 /plugin install think-better@claude-thinking-better
+```
+
+### Any agent: `npx skills add`
+
+The open-source [skills CLI](https://github.com/vercel-labs/skills) installs skills into Claude Code, Codex, Cursor and other agents:
+
+```bash
+npx skills add jjia63937-rgb/Claude-thinking-better
 ```
 
 ### Claude Code: manual install
@@ -72,6 +91,17 @@ To use it in a single project only, unzip into that project's `.claude/skills/` 
 ### Claude API
 
 Custom skills can be uploaded through the API. See the [Skills guide](https://docs.claude.com/en/api/skills-guide).
+
+## Updating
+
+| Installed with | How to update |
+|---|---|
+| Claude apps | Download the latest `think-better.zip` and upload it again. If two think-better entries appear in your skills list, delete the older one. |
+| Claude Code plugin | `claude plugin marketplace update claude-thinking-better`, then `claude plugin update think-better@claude-thinking-better`, then restart Claude Code. |
+| `npx skills add` | `npx skills update think-better` |
+| Manual install | Unzip the new `think-better.zip` over the old folder. |
+
+What changed in each version is in [CHANGELOG.md](CHANGELOG.md).
 
 ## Usage
 
@@ -121,7 +151,7 @@ So far the skill has been spot-checked by hand on a few of these prompts. There'
 
 ## Releasing (maintainers)
 
-1. Bump `metadata.version` in `.claude-plugin/marketplace.json`.
+1. Bump the version in all three places: `metadata.version` and the plugin's `version` in `.claude-plugin/marketplace.json`, and `metadata.version` in `skills/think-better/SKILL.md`. The build fails if they disagree.
 2. Add a matching `## [x.y.z]` section to `CHANGELOG.md`.
 3. Merge to `main`, then either push a tag `vX.Y.Z` or run **Actions → Release → Run workflow** with `vX.Y.Z`.
 
@@ -129,13 +159,19 @@ The workflow validates every skill, checks that the version matches, builds `thi
 
 To build locally: `python3 scripts/package.py` (output goes to `dist/`).
 
+## When something goes wrong
+
+If the skill made an answer worse (too long, too hedged, a wrong conclusion, or it didn't kick in on a question where it should have), please [open an issue](https://github.com/jjia63937-rgb/Claude-thinking-better/issues/new/choose) with the prompt and the answer. Those reports are the most useful input for improving it.
+
 ## Contributing
 
 Issues and pull requests are welcome, especially:
 
-- a question where the skill made Claude's answer worse (too long, too hedged, wrong),
+- a question where the skill made Claude's answer worse,
 - new test prompts with a clear description of a good answer,
 - traps that belong in `references/traps.md`.
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for how changes are tested and released.
 
 ## License
 

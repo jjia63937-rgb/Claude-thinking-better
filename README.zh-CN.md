@@ -9,6 +9,8 @@
 
 第一个技能是 **`think-better`**。
 
+**快速安装：** Claude 应用下载 [⬇️ think-better.zip](https://github.com/jjia63937-rgb/Claude-thinking-better/releases/latest/download/think-better.zip) · Claude Code 用 `/plugin marketplace add jjia63937-rgb/Claude-thinking-better` · 其他 AI 工具用 `npx skills add jjia63937-rgb/Claude-thinking-better`。详见[安装](#安装)。
+
 ## 它做什么
 
 大多数推理错误出在过程，而不是知识不够：回答了一个和原题略有不同的问题，抓住第一个想法不放，用假设填补缺口，或者最后没有检查。`think-better` 给 Claude 一套简短的流程来抓住这些错误，并且按问题难度调整，简单问题依然直接回答。
@@ -21,6 +23,16 @@
 | 证据很少的决策（"等待时间降 20%，回诊率升 15%"） | 编造基线、统计检定力，"有人工审核就安全" | 说明已知和未知，列出竞争解释以及能区分它们的证据，给出带条件的建议和一个可能改变建议的低成本验证 |
 | "你确定吗？" | 马上改口，或者硬撑 | 重新推导，只有发现真正的错误才改 |
 
+**适合用在：**
+
+- 题目像某道名题，或涉及速率、平均数、百分比、计数
+- 题目漏掉了答案所依赖的条件
+- 排查问题时，某个原因看起来"很明显"
+- 需要给出别人会照着执行的建议或决定
+- 你问"你确定吗？"，或者希望答案被再检查一遍
+
+查资料、闲聊、一步就能完成的修改，它不会插手。
+
 流程：
 
 1. **校准**：这题需要多少思考；多步骤任务先决定要不要先规划。
@@ -32,12 +44,11 @@
 
 ## 安装
 
-从 **[Releases](https://github.com/jjia63937-rgb/Claude-thinking-better/releases/latest)** 下载最新的 `think-better.zip`（或 `think-better.skill`）。
-
 ### Claude 应用（claude.ai、桌面版）
 
-1. 打开 **Settings → Capabilities → Skills**。
-2. 点 **Upload skill**，选择 `think-better.zip`。
+1. 从最新版本下载 **[think-better.zip](https://github.com/jjia63937-rgb/Claude-thinking-better/releases/latest/download/think-better.zip)**。
+   请用这个文件，不要下载 GitHub 在每个版本自动附上的 **Source code** 压缩包：那是整个仓库，不能当作技能上传。
+2. 打开 **[claude.ai/settings/capabilities](https://claude.ai/settings/capabilities)**（Settings → Capabilities），找到 **Skills**，点 **Upload skill**，选择 `think-better.zip`。
 3. 确认它的开关是打开的。
 
 如果在设置里找不到 Skills，可能是你的方案或组织还没有开启技能功能。请参考 [Using skills in Claude](https://support.claude.com/en/articles/12512180-using-skills-in-claude)。
@@ -47,6 +58,14 @@
 ```
 /plugin marketplace add jjia63937-rgb/Claude-thinking-better
 /plugin install think-better@claude-thinking-better
+```
+
+### 任何 AI 工具：`npx skills add`
+
+开源的 [skills CLI](https://github.com/vercel-labs/skills) 可以把技能安装到 Claude Code、Codex、Cursor 等工具：
+
+```bash
+npx skills add jjia63937-rgb/Claude-thinking-better
 ```
 
 ### Claude Code：手动安装
@@ -72,6 +91,17 @@ Expand-Archive think-better.zip "$env:USERPROFILE\.claude\skills" -Force
 ### Claude API
 
 可以通过 API 上传自定义技能，详见 [Skills guide](https://docs.claude.com/en/api/skills-guide)。
+
+## 更新
+
+| 安装方式 | 如何更新 |
+|---|---|
+| Claude 应用 | 下载最新的 `think-better.zip` 重新上传。如果技能列表里出现两个 think-better，删掉旧的那个。 |
+| Claude Code 插件 | 执行 `claude plugin marketplace update claude-thinking-better`，再执行 `claude plugin update think-better@claude-thinking-better`，然后重启 Claude Code。 |
+| `npx skills add` | `npx skills update think-better` |
+| 手动安装 | 把新的 `think-better.zip` 解压覆盖旧文件夹。 |
+
+每个版本改了什么，见 [CHANGELOG.md](CHANGELOG.md)。
 
 ## 使用
 
@@ -119,7 +149,7 @@ scripts/package.py                # 校验并生成 dist/*.skill 和 dist/*.zip
 
 ## 发布新版本（维护者）
 
-1. 更新 `.claude-plugin/marketplace.json` 里的 `metadata.version`。
+1. 三个地方的版本号都要更新：`.claude-plugin/marketplace.json` 里的 `metadata.version` 和插件的 `version`，以及 `skills/think-better/SKILL.md` 里的 `metadata.version`。三者不一致时打包会失败。
 2. 在 `CHANGELOG.md` 加上对应的 `## [x.y.z]` 段落。
 3. 合并到 `main` 后，推送标签 `vX.Y.Z`，或在 **Actions → Release → Run workflow** 输入 `vX.Y.Z`。
 
@@ -127,13 +157,19 @@ scripts/package.py                # 校验并生成 dist/*.skill 和 dist/*.zip
 
 本地打包：`python3 scripts/package.py`（输出在 `dist/`）。
 
+## 出问题怎么办
+
+如果技能让回答变差了（太长、太保守、结论错误，或者该用上时没有用上），请[提交 issue](https://github.com/jjia63937-rgb/Claude-thinking-better/issues/new/choose)，附上你的提问和 Claude 的回答。这类回报对改进技能最有帮助。
+
 ## 参与贡献
 
 欢迎提交 issue 和 pull request，尤其是：
 
-- 技能反而让 Claude 回答变差的例子（太长、太保守、答错），
+- 技能反而让 Claude 回答变差的例子，
 - 新的测试题，并清楚说明好的回答应该是什么样，
 - 适合加进 `references/traps.md` 的陷阱。
+
+修改如何测试和发布，见 [CONTRIBUTING.md](CONTRIBUTING.md)。
 
 ## 许可证
 
