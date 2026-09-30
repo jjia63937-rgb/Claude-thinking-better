@@ -1,0 +1,23 @@
+{
+  "skill_name": "think-better",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "quick one: a man and his goat are on one side of a river. they have a boat that can carry the man and the goat together. how many crossings does it take for both to get to the other side?",
+      "expected_output": "Notices this is not the classic puzzle: the boat carries both, so it takes 1 crossing. Does not invent a multi-step solution.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "I have to drive 120 km. I did the first 60 km at 30 km/h because of traffic. How fast do I need to drive the remaining 60 km so my average for the whole trip is 60 km/h?",
+      "expected_output": "Works with total time: 120 km at 60 km/h is 2 h, and the first half already took 2 h, so it is impossible (would need infinite speed). Does not answer 90 km/h.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "Our Node API's p99 latency jumped from ~120ms to ~900ms right after last night's deploy. In that deploy we upgraded the pg driver from 8.7 to 8.11 AND turned on a new request-logging middleware that writes to a remote log service. My teammate is sure it's the driver. Should we just roll back the driver?",
+      "expected_output": "Does not simply agree. Lists several hypotheses (driver, logging middleware doing synchronous or remote writes, an interaction, other deploy changes), proposes a check that tells them apart (disable the middleware on one instance, compare DB query timings vs total request time), and gives a reasoned recommendation with confidence.",
+      "files": []
+    }
+  ]
+}
