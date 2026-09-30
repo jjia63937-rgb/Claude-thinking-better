@@ -1,0 +1,333 @@
+{
+  "per_eval": {
+    "eval-1-river-one-crossing": {
+      "with_skill": {
+        "passed": 4,
+        "total": 4,
+        "runs": [
+          {
+            "run": "with_skill/run-1/answer.md",
+            "passed": 2,
+            "total": 2,
+            "failed": [],
+            "note": "none"
+          },
+          {
+            "run": "with_skill/run-2/answer.md",
+            "passed": 2,
+            "total": 2,
+            "failed": [],
+            "note": "none"
+          }
+        ]
+      },
+      "without_skill": {
+        "passed": 4,
+        "total": 4,
+        "runs": [
+          {
+            "run": "without_skill/run-1/answer.md",
+            "passed": 2,
+            "total": 2,
+            "failed": [],
+            "note": "none"
+          },
+          {
+            "run": "without_skill/run-2/answer.md",
+            "passed": 2,
+            "total": 2,
+            "failed": [],
+            "note": "none"
+          }
+        ]
+      }
+    },
+    "eval-2-impossible-average-speed": {
+      "with_skill": {
+        "passed": 6,
+        "total": 6,
+        "runs": [
+          {
+            "run": "with_skill/run-1/answer.md",
+            "passed": 3,
+            "total": 3,
+            "failed": [],
+            "note": "Minor imprecision: \"not even an infinitely fast one\". In the idealised limit, infinite speed (zero time) would give exactly 60 km/h. The offer to work from a target arrival time is a small, reasonable extra."
+          },
+          {
+            "run": "with_skill/run-2/answer.md",
+            "passed": 3,
+            "total": 3,
+            "failed": [],
+            "note": "none"
+          }
+        ]
+      },
+      "without_skill": {
+        "passed": 6,
+        "total": 6,
+        "runs": [
+          {
+            "run": "without_skill/run-1/answer.md",
+            "passed": 3,
+            "total": 3,
+            "failed": [],
+            "note": "none; the table of example speeds is useful and brief"
+          },
+          {
+            "run": "without_skill/run-2/answer.md",
+            "passed": 3,
+            "total": 3,
+            "failed": [],
+            "note": "Slightly longer than needed: it adds a table and a driving-safety aside. No factual errors."
+          }
+        ]
+      }
+    },
+    "eval-3-latency-two-suspects": {
+      "with_skill": {
+        "passed": 10,
+        "total": 10,
+        "runs": [
+          {
+            "run": "with_skill/run-1/answer.md",
+            "passed": 5,
+            "total": 5,
+            "failed": [],
+            "note": "none"
+          },
+          {
+            "run": "with_skill/run-2/answer.md",
+            "passed": 5,
+            "total": 5,
+            "failed": [],
+            "note": "none"
+          }
+        ]
+      },
+      "without_skill": {
+        "passed": 8,
+        "total": 10,
+        "runs": [
+          {
+            "run": "without_skill/run-1/answer.md",
+            "passed": 4,
+            "total": 5,
+            "failed": [
+              "Considers at least three explanations (e.g. driver, middleware, interaction or other deploy change)"
+            ],
+            "note": "Somewhat long ('longer term' section is extra); no factual errors"
+          },
+          {
+            "run": "without_skill/run-2/answer.md",
+            "passed": 4,
+            "total": 5,
+            "failed": [
+              "Considers at least three explanations (e.g. driver, middleware, interaction or other deploy change)"
+            ],
+            "note": "none; a bit long but focused"
+          }
+        ]
+      }
+    },
+    "eval-4-correct-finance-numbers": {
+      "with_skill": {
+        "passed": 6,
+        "total": 6,
+        "runs": [
+          {
+            "run": "with_skill/run-1/answer.md",
+            "passed": 3,
+            "total": 3,
+            "failed": [],
+            "note": "none; slightly hedged headline ('assuming all 1,200 would otherwise pay $50') but correct."
+          },
+          {
+            "run": "with_skill/run-2/answer.md",
+            "passed": 3,
+            "total": 3,
+            "failed": [],
+            "note": "none; opening hedges with assumptions but verdict is clear."
+          }
+        ]
+      },
+      "without_skill": {
+        "passed": 6,
+        "total": 6,
+        "runs": [
+          {
+            "run": "without_skill/run-1/answer.md",
+            "passed": 3,
+            "total": 3,
+            "failed": [],
+            "note": "none; concise, caveats (foregone revenue, other changes) are reasonable."
+          },
+          {
+            "run": "without_skill/run-2/answer.md",
+            "passed": 3,
+            "total": 3,
+            "failed": [],
+            "note": "none factually; somewhat long with four caveats (timing, duration) plus suggested rewording."
+          }
+        ]
+      }
+    },
+    "eval-5-hospital-triage-thin-evidence": {
+      "with_skill": {
+        "passed": 16,
+        "total": 16,
+        "runs": [
+          {
+            "run": "with_skill/run-1/answer.md",
+            "passed": 8,
+            "total": 8,
+            "failed": [],
+            "note": "none"
+          },
+          {
+            "run": "with_skill/run-2/answer.md",
+            "passed": 8,
+            "total": 8,
+            "failed": [],
+            "note": "none"
+          }
+        ]
+      },
+      "without_skill": {
+        "passed": 11,
+        "total": 16,
+        "runs": [
+          {
+            "run": "without_skill/run-1/answer.md",
+            "passed": 5,
+            "total": 8,
+            "failed": [
+              "Does not assert study-design facts that were not given (e.g. that there was or was no control group, the sample size, or the baseline rates)",
+              "Notes that '15%' could be relative or percentage points",
+              "Pairs the explanations with evidence that would distinguish them"
+            ],
+            "note": "Implies an uncontrolled design ('uncontrolled evidence'). Does not separate 'no harm found' from 'shown safe'."
+          },
+          {
+            "run": "without_skill/run-2/answer.md",
+            "passed": 6,
+            "total": 8,
+            "failed": [
+              "Notes that '15%' could be relative or percentage points",
+              "Pairs the explanations with evidence that would distinguish them"
+            ],
+            "note": "Does not state the limits of the proposed trial or separate 'no harm found' from 'shown safe'. Otherwise none."
+          }
+        ]
+      }
+    },
+    "eval-6-water-lily-missing-count": {
+      "with_skill": {
+        "passed": 10,
+        "total": 10,
+        "runs": [
+          {
+            "run": "with_skill/run-1/answer.md",
+            "passed": 5,
+            "total": 5,
+            "failed": [],
+            "note": "none; concise and correct."
+          },
+          {
+            "run": "with_skill/run-2/answer.md",
+            "passed": 5,
+            "total": 5,
+            "failed": [],
+            "note": "none; concise and correct."
+          }
+        ]
+      },
+      "without_skill": {
+        "passed": 10,
+        "total": 10,
+        "runs": [
+          {
+            "run": "without_skill/run-1/answer.md",
+            "passed": 5,
+            "total": 5,
+            "failed": [],
+            "note": "none; formula is correct. Slightly redundant closing summary."
+          },
+          {
+            "run": "without_skill/run-2/answer.md",
+            "passed": 5,
+            "total": 5,
+            "failed": [],
+            "note": "none factually; somewhat longer, and the part-2 lead says 'I'll explain my assumption first' instead of giving a one-line conditional answer."
+          }
+        ]
+      }
+    }
+  },
+  "totals": {
+    "with_skill": {
+      "passed": 52,
+      "total": 52,
+      "rate": 1.0
+    },
+    "without_skill": {
+      "passed": 45,
+      "total": 52,
+      "rate": 0.865
+    }
+  },
+  "lengths": {
+    "with_skill": {
+      "eval-1-river-one-crossing": [
+        19,
+        20
+      ],
+      "eval-2-impossible-average-speed": [
+        179,
+        160
+      ],
+      "eval-3-latency-two-suspects": [
+        500,
+        479
+      ],
+      "eval-4-correct-finance-numbers": [
+        265,
+        234
+      ],
+      "eval-5-hospital-triage-thin-evidence": [
+        631,
+        666
+      ],
+      "eval-6-water-lily-missing-count": [
+        242,
+        211
+      ]
+    },
+    "without_skill": {
+      "eval-1-river-one-crossing": [
+        20,
+        37
+      ],
+      "eval-2-impossible-average-speed": [
+        190,
+        208
+      ],
+      "eval-3-latency-two-suspects": [
+        464,
+        492
+      ],
+      "eval-4-correct-finance-numbers": [
+        189,
+        319
+      ],
+      "eval-5-hospital-triage-thin-evidence": [
+        519,
+        548
+      ],
+      "eval-6-water-lily-missing-count": [
+        261,
+        294
+      ]
+    }
+  }
+}

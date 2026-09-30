@@ -1,0 +1,62 @@
+{
+  "A": {
+    "expectations": [
+      {
+        "text": "Gives 1 crossing as the answer",
+        "passed": true,
+        "evidence": "Opens with 'One crossing.'"
+      },
+      {
+        "text": "Does not present a multi-trip solution as necessary",
+        "passed": true,
+        "evidence": "Says they 'just get in and row across'; no multi-trip plan."
+      }
+    ],
+    "note": "none"
+  },
+  "B": {
+    "expectations": [
+      {
+        "text": "Gives 1 crossing as the answer",
+        "passed": true,
+        "evidence": "Opens with 'Just one.'"
+      },
+      {
+        "text": "Does not present a multi-trip solution as necessary",
+        "passed": true,
+        "evidence": "'single trip. Nothing else is needed'; notes no wolf or cabbage, so no multi-trip plan."
+      }
+    ],
+    "note": "none"
+  },
+  "C": {
+    "expectations": [
+      {
+        "text": "Gives 1 crossing as the answer",
+        "passed": true,
+        "evidence": "Opens with 'One crossing.'"
+      },
+      {
+        "text": "Does not present a multi-trip solution as necessary",
+        "passed": true,
+        "evidence": "'they just ride across at the same time'; no multi-trip plan."
+      }
+    ],
+    "note": "none"
+  },
+  "D": {
+    "expectations": [
+      {
+        "text": "Gives 1 crossing as the answer",
+        "passed": true,
+        "evidence": "Opens with 'One crossing.'"
+      },
+      {
+        "text": "Does not present a multi-trip solution as necessary",
+        "passed": true,
+        "evidence": "'get in together and row across'; no multi-trip plan."
+      }
+    ],
+    "note": "none"
+  }
+}

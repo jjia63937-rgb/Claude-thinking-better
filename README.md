@@ -149,16 +149,16 @@ scripts/package.py                # validates and builds dist/*.skill and dist/*
 
 ### Results
 
-In a blind with/without comparison ([full report](benchmarks/2026-09-30-v1.0.1/README.md)) with the same model, 2 runs per prompt, graded by a separate model:
+In a blind with/without comparison with the same model, 2 runs per prompt, graded by a separate model ([v1.0.2 report](benchmarks/2026-09-30-v1.0.2/README.md), [v1.0.1 report](benchmarks/2026-09-30-v1.0.1/README.md)):
 
-| | With skill | Without skill |
-|---|---|---|
-| Checks passed | **52/52 (100%)** | 44/52 (85%) |
-| Average length | +16% | baseline |
+| | v1.0.2 | v1.0.1 | Without skill |
+|---|---|---|---|
+| Checks passed | **52/52** | 52/52 | 44–45/52 |
+| Average length vs. no skill | **+2%** | +16% | baseline |
 
 - **Where it helped:** all 8 misses were in the no-skill answers, on three prompts. They failed to consider a third cause in the latency question, to flag the relative-vs-percentage-point ambiguity and pair explanations with evidence in the triage question, and to state the missing assumption up front in the water-lily question.
 - **Where it didn't:** on the famous-puzzle, average-speed and finance-check prompts, both conditions passed everything. The model without the skill already handled those.
-- **Cost:** answers with the skill were about 16% longer, most noticeably on trivial questions.
+- **Cost:** v1.0.1 answers were 16% longer, mostly because of extra text on trivial questions. v1.0.2 fixed that. Answers are now about as long as without the skill: shorter on simple questions, and longer only where the skill adds substance.
 
 The sample is small and the checks were written by the skill's author, so this shows the skill does what it's designed to do, not that it improves every answer. Raw answers and grades are in the report so you can check them. To rerun it, use Anthropic's `skill-creator` skill with the prompts in `evals.json`.
 

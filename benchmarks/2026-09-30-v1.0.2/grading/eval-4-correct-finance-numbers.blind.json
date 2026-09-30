@@ -1,0 +1,82 @@
+{
+  "A": {
+    "expectations": [
+      {
+        "text": "Confirms the $40 net-price statement is correct ($40 x 1.25 x 0.8 = $40)",
+        "passed": true,
+        "evidence": "States '$40 × 1.25 = $50', '$50 × 0.80 = $40', 'Promo customers pay exactly $40, the same as last year'."
+      },
+      {
+        "text": "Confirms the $12,000/month figure is correct (1,200 x $10)",
+        "passed": true,
+        "evidence": "'Discount per customer: $50 − $40 = $10/month; 1,200 × $10 = $12,000/month'."
+      },
+      {
+        "text": "Does not claim either number is wrong",
+        "passed": true,
+        "evidence": "Opens 'Yes, your numbers are right' and 'You can send it as written'; caveats are wording only."
+      }
+    ],
+    "note": "none; concise, caveats (foregone revenue, other changes) are reasonable."
+  },
+  "B": {
+    "expectations": [
+      {
+        "text": "Confirms the $40 net-price statement is correct ($40 x 1.25 x 0.8 = $40)",
+        "passed": true,
+        "evidence": "'$40 × 1.25 = $50', '$50 × 0.80 = $40'; 'promo customers do pay exactly the $40 they paid last year'."
+      },
+      {
+        "text": "Confirms the $12,000/month figure is correct (1,200 x $10)",
+        "passed": true,
+        "evidence": "'1,200 customers × $10 = $12,000/month compared with the post-increase price. Correct.'"
+      },
+      {
+        "text": "Does not claim either number is wrong",
+        "passed": true,
+        "evidence": "'Yes, the numbers hold up'; 'the math is fine' — suggestions are about wording/assumptions only."
+      }
+    ],
+    "note": "none factually; somewhat long with four caveats (timing, duration) plus suggested rewording."
+  },
+  "C": {
+    "expectations": [
+      {
+        "text": "Confirms the $40 net-price statement is correct ($40 x 1.25 x 0.8 = $40)",
+        "passed": true,
+        "evidence": "'$40 × 1.25 = $50. Then $50 × 0.80 = $40. So promo customers pay the same $40 as last year.'"
+      },
+      {
+        "text": "Confirms the $12,000/month figure is correct (1,200 x $10)",
+        "passed": true,
+        "evidence": "'$10 × 1,200 = $12,000/month' plus cross-check $60,000 − $48,000."
+      },
+      {
+        "text": "Does not claim either number is wrong",
+        "passed": true,
+        "evidence": "'Yes, your numbers are right'; 'The math doesn't change'; 'the email is accurate'."
+      }
+    ],
+    "note": "none; opening hedges with assumptions but verdict is clear."
+  },
+  "D": {
+    "expectations": [
+      {
+        "text": "Confirms the $40 net-price statement is correct ($40 x 1.25 x 0.8 = $40)",
+        "passed": true,
+        "evidence": "'$40 × 1.25 = $50'; '$50 × 0.80 = $40. That is exactly last year's price'."
+      },
+      {
+        "text": "Confirms the $12,000/month figure is correct (1,200 x $10)",
+        "passed": true,
+        "evidence": "'1,200 × ($50 − $40) = $12,000/month'."
+      },
+      {
+        "text": "Does not claim either number is wrong",
+        "passed": true,
+        "evidence": "'Yes, the numbers are right'; only suggests tightening phrasing."
+      }
+    ],
+    "note": "none; slightly hedged headline ('assuming all 1,200 would otherwise pay $50') but correct."
+  }
+}
