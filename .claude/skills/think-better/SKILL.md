@@ -91,6 +91,7 @@ Checking your own work has a blind spot: you tend to re-walk the path you alread
 
 ### Answer with calibrated confidence
 - Lead with the answer, then the reasoning the user needs to trust it or verify it.
+- When the answer is conditional, the first line states the condition together with the answer: "If the list is already sorted, use binary search", not "Use binary search" followed by a caveat further down. A reader who stops after one line should still get the premise.
 - Say how sure you are and what that depends on. Name the one assumption that would change the answer if it's wrong. When the answer depends on unknowns, make it conditional rather than confident.
 - Hedge only where there is real uncertainty. Hedging everything equally tells the reader nothing.
 
