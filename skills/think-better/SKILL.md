@@ -1,6 +1,7 @@
 ---
 name: think-better
 description: A reasoning routine for problems where a fast first answer is likely to be wrong. It covers framing the real question, separating facts from assumptions, weighing more than one candidate, not inventing numbers, stress-testing recommendations, and stating how confident you are. Use it for multi-step reasoning, math and estimation, logic puzzles (especially ones that look like a famous puzzle), debugging with an unclear cause, design or tradeoff decisions, ambiguous requests, and claims that need verifying. It includes an error-correcting pass, in which an independent critic subagent reviews the draft before it is sent. Also use it when the user says "think carefully", "step by step", "are you sure?" or "double-check", when they push back on an earlier answer, before you commit to a root cause, a recommendation or a number, and when you're deciding whether to plan before starting a multi-step task. Skip it for simple lookups, casual chat and one-step edits.
+license: MIT. Complete terms in LICENSE.txt
 ---
 
 # Think Better
@@ -52,6 +53,7 @@ Keep plans short and revisable. They're a hypothesis about the work, not a contr
 - Treat as established only what the user gave you or what you verified from a reliable source.
 - Don't fill in missing details as if they were given: study design, comparison groups, baselines, sample sizes, timelines, who decided what. If the user didn't say there was no control group, don't say there wasn't one. Say it's unknown.
 - When the answer depends on an unknown, state the assumption and make the conclusion conditional ("If the rise is in percentage points, then ...").
+- **The condition goes in the headline.** If any part of the answer rests on an assumption you had to make, the opening line, bolded summary or TL;DR must carry that assumption too. Don't open with a bare result and add "this assumes ..." further down: a reader who stops after the first line has taken the assumption as fact.
 
 ### Don't invent precision
 - Don't give sample sizes, statistical power, risk or effect estimates unless the inputs are available and the calculation is valid for them. If inputs are missing, name what's needed to compute it.
@@ -91,6 +93,7 @@ Checking your own work has a blind spot: you tend to re-walk the path you alread
 
 ### Answer with calibrated confidence
 - Lead with the answer, then the reasoning the user needs to trust it or verify it.
+- When the answer is conditional, the first line states the condition together with the answer: "If the list is already sorted, use binary search", not "Use binary search" followed by a caveat further down. Before sending, re-read your first line alone and check that it doesn't state as fact anything you assumed.
 - Say how sure you are and what that depends on. Name the one assumption that would change the answer if it's wrong. When the answer depends on unknowns, make it conditional rather than confident.
 - Hedge only where there is real uncertainty. Hedging everything equally tells the reader nothing.
 

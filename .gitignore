@@ -1,0 +1,7 @@
+# Build output from scripts/package.py (published as release assets, not committed)
+dist/
+
+.DS_Store
+__pycache__/
+.idea/
+.vscode/
