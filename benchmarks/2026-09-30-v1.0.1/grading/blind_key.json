@@ -1,0 +1,38 @@
+{
+  "eval-1-river-one-crossing": {
+    "C": "with_skill/run-1/answer.md",
+    "A": "with_skill/run-2/answer.md",
+    "B": "without_skill/run-1/answer.md",
+    "D": "without_skill/run-2/answer.md"
+  },
+  "eval-2-impossible-average-speed": {
+    "A": "with_skill/run-1/answer.md",
+    "B": "with_skill/run-2/answer.md",
+    "D": "without_skill/run-1/answer.md",
+    "C": "without_skill/run-2/answer.md"
+  },
+  "eval-3-latency-two-suspects": {
+    "C": "with_skill/run-1/answer.md",
+    "B": "with_skill/run-2/answer.md",
+    "D": "without_skill/run-1/answer.md",
+    "A": "without_skill/run-2/answer.md"
+  },
+  "eval-4-correct-finance-numbers": {
+    "A": "with_skill/run-1/answer.md",
+    "B": "with_skill/run-2/answer.md",
+    "C": "without_skill/run-1/answer.md",
+    "D": "without_skill/run-2/answer.md"
+  },
+  "eval-5-hospital-triage-thin-evidence": {
+    "C": "with_skill/run-1/answer.md",
+    "B": "with_skill/run-2/answer.md",
+    "D": "without_skill/run-1/answer.md",
+    "A": "without_skill/run-2/answer.md"
+  },
+  "eval-6-water-lily-missing-count": {
+    "C": "with_skill/run-1/answer.md",
+    "B": "with_skill/run-2/answer.md",
+    "D": "without_skill/run-1/answer.md",
+    "A": "without_skill/run-2/answer.md"
+  }
+}

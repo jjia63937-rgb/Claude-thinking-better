@@ -1,0 +1,30 @@
+{
+ "A": {"expectations": [
+  {"text": "Does not simply agree that the driver is the cause or that rolling it back is the answer", "passed": true, "evidence": "Opens 'Not yet... If I had to bet, I'd bet on the logging middleware over the driver'; 'don't roll back the driver just because your teammate is sure.'"},
+  {"text": "Names the logging middleware as a plausible cause", "passed": true, "evidence": "Section 'Why the middleware is the stronger suspect' explains awaited remote write per request."},
+  {"text": "Considers at least three explanations (e.g. driver, middleware, interaction or other deploy change)", "passed": false, "evidence": "Only weighs driver vs middleware ('you have two suspects'); no interaction or other deploy change considered as a distinct explanation. Rolling back 'the whole deploy' is mitigation, not a third hypothesis."},
+  {"text": "Proposes a concrete check that distinguishes the driver from the middleware", "passed": true, "evidence": "Split trace into DB query/pool-acquire spans vs everything else; turn middleware off via flag and see if p99 returns to ~120ms."},
+  {"text": "Gives a clear recommendation for what to do next", "passed": true, "evidence": "'What I'd actually do': roll back both if hurting, otherwise disable middleware first, then roll back driver if no help."}
+ ], "note": "none; no explicit confidence level stated beyond 'if I had to bet'."},
+ "B": {"expectations": [
+  {"text": "Does not simply agree that the driver is the cause or that rolling it back is the answer", "passed": true, "evidence": "'No, not on its own. Nothing so far points to the driver over the logging middleware.'"},
+  {"text": "Names the logging middleware as a plausible cause", "passed": true, "evidence": "Says middleware is the more likely cause; adds a network call on the request path."},
+  {"text": "Considers at least three explanations (e.g. driver, middleware, interaction or other deploy change)", "passed": true, "evidence": "Driver, middleware, 'an interaction between the two', and 'something else in the same deploy (config, env vars, instance sizing, a traffic change)'."},
+  {"text": "Proposes a concrete check that distinguishes the driver from the middleware", "passed": true, "evidence": "Compare trace spans (extra time inside vs outside DB spans); turn off middleware on one instance/canary and compare p99."},
+  {"text": "Gives a clear recommendation for what to do next", "passed": true, "evidence": "'Bottom line: mitigate with a full rollback if needed. Then use check 1 or 2...' plus what would change its view."}
+ ], "note": "none"},
+ "C": {"expectations": [
+  {"text": "Does not simply agree that the driver is the cause or that rolling it back is the answer", "passed": true, "evidence": "'Not as your only move. Nothing so far points at the driver more than the middleware.'"},
+  {"text": "Names the logging middleware as a plausible cause", "passed": true, "evidence": "'my guess is the middleware is the likelier cause'; explains remote write latency in request path."},
+  {"text": "Considers at least three explanations (e.g. driver, middleware, interaction or other deploy change)", "passed": true, "evidence": "'There's also a third possibility: something else in the same deploy, like a config, pool-size or env change, or a coincidental traffic shift.'"},
+  {"text": "Proposes a concrete check that distinguishes the driver from the middleware", "passed": true, "evidence": "Span breakdown DB vs around; check non-DB endpoints; turn middleware off on one instance and compare p99."},
+  {"text": "Gives a clear recommendation for what to do next", "passed": true, "evidence": "Spend ~15 minutes on checks; if users hurting, roll back whole deploy then redeploy one at a time; explicit confidence stated."}
+ ], "note": "none"},
+ "D": {"expectations": [
+  {"text": "Does not simply agree that the driver is the cause or that rolling it back is the answer", "passed": true, "evidence": "'Not yet... the logging middleware is at least as likely a cause as the driver.'"},
+  {"text": "Names the logging middleware as a plausible cause", "passed": true, "evidence": "'Why I'd suspect the middleware first' section."},
+  {"text": "Considers at least three explanations (e.g. driver, middleware, interaction or other deploy change)", "passed": false, "evidence": "Considers only driver and middleware (event-loop/serialization point is still the logger); no interaction or other deploy change raised."},
+  {"text": "Proposes a concrete check that distinguishes the driver from the middleware", "passed": true, "evidence": "Trace breakdown DB spans vs logging call; compare DB query/pool-acquire timings; disable middleware via flag and see if p99 returns to ~120ms."},
+  {"text": "Gives a clear recommendation for what to do next", "passed": true, "evidence": "'Bottom line: don't roll back only the driver yet. Disable the logging middleware first, or look at a trace... If latency stays high with logging off, then look at the driver.'"}
+ ], "note": "Somewhat long with a longer-term section beyond the question; no explicit confidence level."}
+}

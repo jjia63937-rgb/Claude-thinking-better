@@ -1,0 +1,30 @@
+{
+  "A": {"expectations": [
+    {"text": "Answers part 1 with day 47 (not day 24)", "passed": true, "evidence": "Bold opening: '第一問：第 47 天覆蓋一半。'"},
+    {"text": "Answers part 1 directly, without inventing caveats for it", "passed": true, "evidence": "Part 1 is a direct one-step derivation (day 48 is double day 47) with no caveats."},
+    {"text": "For part 2, names that the question does not say how many plants the original scenario started with", "passed": true, "evidence": "'答案要看原本放了幾株。題目沒有說' and '題目沒有給出這個數量'."},
+    {"text": "For part 2, gives a conditional answer rather than a bare number (e.g. 47 days if the original started with 1 plant)", "passed": true, "evidence": "Assumes 1 plant -> 47 days; if original was 2 plants -> 48 days; general rule: doubling the start saves 1 day."},
+    {"text": "The opening line or summary states the assumption for part 2, not only a caveat further down", "passed": false, "evidence": "No top-level summary covers part 2; the part-2 heading flags that an assumption is needed ('我先說明我的假設') but the actual assumption (original = 1 plant) and the 47-day answer appear only in the body text below."}
+  ], "note": "none; the claim that 1 plant is the '最常見的理解' is a mild unsupported assertion"},
+  "B": {"expectations": [
+    {"text": "Answers part 1 with day 47 (not day 24)", "passed": true, "evidence": "'第一問：第 47 天覆蓋一半。'"},
+    {"text": "Answers part 1 directly, without inventing caveats for it", "passed": true, "evidence": "Part 1 is stated flatly, with only a note that 24 is the wrong intuitive answer."},
+    {"text": "For part 2, names that the question does not say how many plants the original scenario started with", "passed": true, "evidence": "'但題目沒說原本放了幾株，所以第二問的答案取決於這一點。'"},
+    {"text": "For part 2, gives a conditional answer rather than a bare number (e.g. 47 days if the original started with 1 plant)", "passed": true, "evidence": "Gives three cases: original 1 plant -> 47 days; original 2 plants -> 48 days; start multiplied by k -> log2(k) fewer days."},
+    {"text": "The opening line or summary states the assumption for part 2, not only a caveat further down", "passed": true, "evidence": "Opening summary: '第二問：如果原題一開始只放了 1 株，那麼放 2 株時要 47 天。'"}
+  ], "note": "none; the '原本放 n 株' bullet actually states the rule for a k-fold start, a slight mismatch in labeling"},
+  "C": {"expectations": [
+    {"text": "Answers part 1 with day 47 (not day 24)", "passed": true, "evidence": "'第一問：第 47 天覆蓋一半。'"},
+    {"text": "Answers part 1 directly, without inventing caveats for it", "passed": true, "evidence": "Part 1 is a direct back-one-day argument with no caveats."},
+    {"text": "For part 2, names that the question does not say how many plants the original scenario started with", "passed": true, "evidence": "'題目沒有說原本一開始放了幾株，所以答案取決於這一點。'"},
+    {"text": "For part 2, gives a conditional answer rather than a bare number (e.g. 47 days if the original started with 1 plant)", "passed": true, "evidence": "47 days assuming 1 plant; general formula 48 − log2(2/n); original 2 plants -> 48 days."},
+    {"text": "The opening line or summary states the assumption for part 2, not only a caveat further down", "passed": true, "evidence": "Opening line: '假設原題一開始是放 1 株（題目沒有說明），那麼放 2 株時需要 47 天。'"}
+  ], "note": "none; includes a correct verification (2*2^d = 2^48 gives d = 47)"},
+  "D": {"expectations": [
+    {"text": "Answers part 1 with day 47 (not day 24)", "passed": true, "evidence": "'第一問：第 47 天覆蓋一半。'"},
+    {"text": "Answers part 1 directly, without inventing caveats for it", "passed": true, "evidence": "Direct derivation; only notes that 24 is a wrong intuition."},
+    {"text": "For part 2, names that the question does not say how many plants the original scenario started with", "passed": true, "evidence": "'第二問：要看原本一開始放了幾株，題目沒有講。'"},
+    {"text": "For part 2, gives a conditional answer rather than a bare number (e.g. 47 days if the original started with 1 plant)", "passed": true, "evidence": "If original was 1 plant -> 47 days; general formula 48 − log2(2/n); original 2 plants -> 48 days."},
+    {"text": "The opening line or summary states the assumption for part 2, not only a caveat further down", "passed": true, "evidence": "The part-2 heading names the gap, and the closing summary says '如果原題是從 1 株開始，放 2 株要 47 天覆蓋整個池塘。'"}
+  ], "note": "none; the claim that 1 plant is '這道題最常見的說法' is a mild unsupported assertion"}
+}

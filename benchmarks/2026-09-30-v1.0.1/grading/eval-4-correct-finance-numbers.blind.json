@@ -1,0 +1,82 @@
+{
+ "A": {
+  "expectations": [
+   {
+    "text": "Confirms the $40 net-price statement is correct ($40 x 1.25 x 0.8 = $40)",
+    "passed": true,
+    "evidence": "Shows $40 x 1.25 = $50, $50 x 0.80 = $40; 'Promo customers pay the same $40 a month as last year.'"
+   },
+   {
+    "text": "Confirms the $12,000/month figure is correct (1,200 x $10)",
+    "passed": true,
+    "evidence": "Shows $50 - $40 = $10, 1,200 x $10 = $12,000/month, cross-checked via $60,000 - $48,000."
+   },
+   {
+    "text": "Does not claim either number is wrong",
+    "passed": true,
+    "evidence": "Opens 'Yes, both numbers are right'; caveats concern baseline wording and gross vs real cost, not arithmetic."
+   }
+  ],
+  "note": "none; concise, caveats (baseline, gross discount) are reasonable."
+ },
+ "B": {
+  "expectations": [
+   {
+    "text": "Confirms the $40 net-price statement is correct ($40 x 1.25 x 0.8 = $40)",
+    "passed": true,
+    "evidence": "Shows $40 x 1.25 = $50 and $50 x 0.80 = $40, plus reverse check that dividing by 1.25 equals x0.8."
+   },
+   {
+    "text": "Confirms the $12,000/month figure is correct (1,200 x $10)",
+    "passed": true,
+    "evidence": "'($50 - $40) x 1,200 = $12,000/month below the post-increase list price.'"
+   },
+   {
+    "text": "Does not claim either number is wrong",
+    "passed": true,
+    "evidence": "States 'the math is right'; suggested changes are wording/baseline tightening only."
+   }
+  ],
+  "note": "No factual errors; somewhat long with extensive wording caveats, but none contradict the numbers."
+ },
+ "C": {
+  "expectations": [
+   {
+    "text": "Confirms the $40 net-price statement is correct ($40 x 1.25 x 0.8 = $40)",
+    "passed": true,
+    "evidence": "Shows $40 x 1.25 = $50, $50 x 0.80 = $40; 'Promo customers pay exactly $40, the same as last year.'"
+   },
+   {
+    "text": "Confirms the $12,000/month figure is correct (1,200 x $10)",
+    "passed": true,
+    "evidence": "'Discount per customer: $50 - $40 = $10/month; 1,200 x $10 = $12,000/month.'"
+   },
+   {
+    "text": "Does not claim either number is wrong",
+    "passed": true,
+    "evidence": "'Yes, your numbers are right' and 'You can send it as written.'"
+   }
+  ],
+  "note": "none; correct side example (25% up then 25% off = $37.50)."
+ },
+ "D": {
+  "expectations": [
+   {
+    "text": "Confirms the $40 net-price statement is correct ($40 x 1.25 x 0.8 = $40)",
+    "passed": true,
+    "evidence": "Shows $40 x 1.25 = $50, $50 x 0.80 = $40; 'promo customers do pay exactly the $40 they paid last year.'"
+   },
+   {
+    "text": "Confirms the $12,000/month figure is correct (1,200 x $10)",
+    "passed": true,
+    "evidence": "'1,200 customers x $10 = $12,000/month compared with the post-increase price. Correct.'"
+   },
+   {
+    "text": "Does not claim either number is wrong",
+    "passed": true,
+    "evidence": "'Yes, the numbers hold up'; 'the math is fine' before listing optional wording considerations."
+   }
+  ],
+  "note": "No errors in the math; somewhat excess length with four caveats, and the timing caveat assumes promo customers were subscribed in Jan-Feb."
+ }
+}

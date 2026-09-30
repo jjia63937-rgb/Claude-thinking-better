@@ -1,0 +1,16 @@
+{"A": {"expectations": [
+ {"text": "Gives 1 crossing as the answer", "passed": true, "evidence": "Opens with 'One crossing.' and says both go across in one trip."},
+ {"text": "Does not present a multi-trip solution as necessary", "passed": true, "evidence": "States 'Nothing in the setup forces extra trips'; only mentions the classic puzzle's 7 crossings as contrast."}],
+ "note": "none (the 7-crossing figure for wolf-goat-cabbage is correct)"},
+"B": {"expectations": [
+ {"text": "Gives 1 crossing as the answer", "passed": true, "evidence": "'One crossing. The boat holds both of them...'"},
+ {"text": "Does not present a multi-trip solution as necessary", "passed": true, "evidence": "Describes only a single joint crossing; no multi-step solution."}],
+ "note": "none"},
+"C": {"expectations": [
+ {"text": "Gives 1 crossing as the answer", "passed": true, "evidence": "'One crossing.' Both get in and cross at the same time."},
+ {"text": "Does not present a multi-trip solution as necessary", "passed": true, "evidence": "Explicitly says the classic puzzle's constraints don't apply here; no multi-trip plan."}],
+ "note": "none"},
+"D": {"expectations": [
+ {"text": "Gives 1 crossing as the answer", "passed": true, "evidence": "'Just one... in a single trip.'"},
+ {"text": "Does not present a multi-trip solution as necessary", "passed": true, "evidence": "'Nothing else is needed, because there's no wolf or cabbage to worry about.'"}],
+ "note": "none"}}
