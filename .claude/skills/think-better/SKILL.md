@@ -1,6 +1,6 @@
 ---
 name: think-better
-description: A reasoning routine for problems where a fast first answer is likely to be wrong. It covers framing the real question, weighing more than one candidate, working in steps you can check, trying to break your own answer, and stating how confident you are. Use it for multi-step reasoning, math and estimation, logic puzzles (especially ones that look like a famous puzzle), debugging with an unclear cause, design or tradeoff decisions, ambiguous requests, and claims that need verifying. Also use it when the user says "think carefully", "step by step", "are you sure?" or "double-check", when they push back on an earlier answer, and before you commit to a root cause, a recommendation or a number. Skip it for simple lookups, casual chat and one-step edits.
+description: A reasoning routine for problems where a fast first answer is likely to be wrong. It covers framing the real question, weighing more than one candidate, working in steps you can check, trying to break your own answer, and stating how confident you are. Use it for multi-step reasoning, math and estimation, logic puzzles (especially ones that look like a famous puzzle), debugging with an unclear cause, design or tradeoff decisions, ambiguous requests, and claims that need verifying. It includes an error-correcting pass, in which an independent critic subagent reviews the draft before it is sent. Also use it when the user says "think carefully", "step by step", "are you sure?" or "double-check", when they push back on an earlier answer, and before you commit to a root cause, a recommendation or a number. Skip it for simple lookups, casual chat and one-step edits.
 ---
 
 # Think Better
@@ -55,25 +55,64 @@ Before answering, attack your own answer:
 - If you're choosing between hypotheses, find the **one observation that would tell them apart**. It's worth more than extra arguments for your favourite.
 - If this fails, go back to "Generate". Don't patch the old answer so it survives.
 
+### Get a second pair of eyes (high-stakes only)
+Checking your own work has a blind spot: you tend to re-walk the path you already took. When the answer is costly if wrong, or you're still unsure after the break-it step, run the error-correcting pass in section 3 before answering.
+
 ### Answer with calibrated confidence
 - Lead with the answer, then the reasoning the user needs to trust it or verify it.
 - Say how sure you are and what that depends on. Name the one assumption that would change the answer if it's wrong.
 - Hedge only where there is real uncertainty. Hedging everything equally tells the reader nothing.
 
-## 3. When the user pushes back
+## 3. Error-correcting pass: the critic agent
+
+An independent reviewer catches errors that self-checking misses, because it doesn't share your reasoning path. Use it when **any** of these holds:
+- A wrong answer would be expensive: production changes, money, health, a decision someone will act on, or a long piece of work built on this result.
+- The break-it step turned up doubts you couldn't resolve.
+- The user explicitly asked you to double-check or be careful.
+
+Skip it for anything the calibration table rates as easy. The pass costs time and tokens, and it pays off only when errors are both likely and costly.
+
+### If you can spawn a subagent
+1. Draft your answer as if you were about to send it.
+2. Spawn one subagent with instructions to read `agents/critic.md` and follow it. Give it:
+   - **QUESTION**: the user's request verbatim, plus the context the answer depends on (file paths, data, constraints).
+   - **DRAFT**: your answer.
+   - **FOCUS** (optional): the one or two parts you're least sure of.
+
+   **Don't** pass along your reasoning or say which answer you expect. The critic has to solve the problem independently to be useful. If you show it your path, it will just walk it again.
+3. Wait for its report. You need the result before you answer, so run it in the foreground.
+
+### If you can't spawn a subagent
+Run the same review yourself as a deliberate change of role. Read `agents/critic.md`, then re-solve the problem **by a different method** from the one you used: a different formula, working backwards, a concrete example instead of algebra, a different starting hypothesis. Only then compare the result against your draft. Re-reading the draft alone is not a critic pass.
+
+### Adjudicate. Don't obey.
+The critic can be wrong too. For each issue it reports:
+- **Verify it.** Reproduce the evidence: recompute, rerun, re-read the question.
+- **Accept** the issue if the evidence holds, and fix the draft at its root, not with a patch.
+- **Reject** it if the evidence doesn't hold, and note why in one line to yourself.
+- **If you and the critic disagree on the crux**, don't split the difference. Find the observation or computation that settles it and run it. If nothing can settle it, tell the user both positions and what would decide between them.
+
+### Limits
+- Run **at most two rounds**. Do a second round only if the first found BLOCKING issues and your fix was substantial.
+- If blocking issues remain after two rounds, don't loop. Give the user your best answer with the unresolved issue stated plainly.
+
+### What the user sees
+Give the corrected answer. If the pass changed something that matters, say so briefly: "My first calculation used the mean of the speeds. That's wrong for average speed, and the correct result is ...". A visible correction builds trust. Don't narrate the review process when nothing changed.
+
+## 4. When the user pushes back
 
 Re-derive the answer. Don't defer by reflex, and don't defend it by reflex.
 - If they brought new information or pointed to a real flaw, change your answer and say exactly what was wrong.
 - If they didn't, keep your answer, say which step you re-checked, and explain it more clearly. Politely holding a correct answer helps them more than agreeing.
 - "Are you sure?" isn't evidence either way. Treat it as a cue to run the break-it step for real.
 
-## 4. What to show the user
+## 5. What to show the user
 
 - Show reasoning that helps the user check or use the answer: key steps, assumptions, and the check you ran.
 - Leave out the ritual. Don't write "Step 1: Frame". A reader should see a careful answer, not a filled-in form.
 - For math and puzzles, show the work compactly so an error would be visible.
 
-## 5. Examples
+## 6. Examples
 
 **A modified classic.** "A farmer needs to cross a river with a wolf, a goat and a cabbage. The boat holds the farmer and all three. How many crossings?"
 The pattern-matched answer is 7. Framing catches that the boat holds everything, so the answer is **1 crossing**. Say so, and note that it differs from the classic version.
@@ -81,6 +120,6 @@ The pattern-matched answer is 7. Framing catches that the boat holds everything,
 **A debugging question with a suspect already named.** "Latency jumped after we upgraded the DB driver. We also added logging middleware in the same deploy. It's the driver, right?"
 Generate: driver, middleware, an interaction between them, or something else in the deploy (a config change, traffic). Break it: find the observation that tells them apart. Toggle the middleware off in one instance, compare per-query timing before and after, or check whether the extra latency is inside DB calls or around them. Answer with the plan, and with the hypothesis that fits the evidence best so far, not with a yes.
 
-## 6. More traps and domain checklists
+## 7. More traps and domain checklists
 
 For a longer catalog of failure modes, with checklists for math and estimation, debugging, decisions, factual claims, writing code, and reviewing your own work, read `references/traps.md`. Open only the section for the domain you're working in.
