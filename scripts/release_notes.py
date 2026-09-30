@@ -13,13 +13,15 @@ REPO = "jjia63937-rgb/Claude-thinking-better"
 INSTALL = f"""
 ## Install
 
-**Claude apps (claude.ai / desktop):** download `think-better.zip` below, then go to **Settings → Capabilities → Skills → Upload skill** and turn it on.
+**Claude apps (claude.ai / desktop):** download `think-better.zip` below (not the "Source code" archives), then open https://claude.ai/settings/capabilities, click **Upload skill** under Skills and turn it on.
 
 **Claude Code (plugin):**
 ```
 /plugin marketplace add {REPO}
 /plugin install think-better@claude-thinking-better
 ```
+
+**Any agent:** `npx skills add {REPO}`
 
 **Claude Code (manual):** unzip `think-better.zip` into `~/.claude/skills/` (Windows: `%USERPROFILE%\\.claude\\skills\\`).
 

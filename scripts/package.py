@@ -11,7 +11,10 @@ since it's only used for testing the skill.
 Usage:
   python scripts/package.py                    # validate and package
   python scripts/package.py --check-version v1.2.0
-                                               # also require the marketplace version to match the tag
+                                               # also require the version to match the tag
+
+The version lives in three places that must agree: marketplace.json
+metadata.version, each plugin's version, and each SKILL.md metadata.version.
 """
 import argparse
 import json
@@ -89,16 +92,28 @@ def package(skill_dir):
     return files, outputs
 
 
+def skill_version(skill_md):
+    """Return metadata.version from a SKILL.md frontmatter, or None."""
+    text = skill_md.read_text(encoding="utf-8")
+    match = re.search(r"^metadata:\n(?:[ \t]+.*\n)*?[ \t]+version:\s*[\"']?([^\"'\n]+)", text, re.MULTILINE)
+    return match.group(1).strip() if match else None
+
+
 def check_marketplace(tag):
+    """Every plugin's skills exist, and every version string agrees (and matches TAG if given)."""
     data = json.loads(MARKETPLACE.read_text(encoding="utf-8"))
+    version = data["metadata"]["version"]
     for plugin in data["plugins"]:
+        if plugin.get("version") != version:
+            fail(f"marketplace.json: plugin '{plugin['name']}' version {plugin.get('version')} != metadata.version {version}")
         for path in plugin.get("skills", []):
-            if not (ROOT / path / "SKILL.md").exists():
+            skill_md = ROOT / path / "SKILL.md"
+            if not skill_md.exists():
                 fail(f"marketplace.json: plugin '{plugin['name']}' points to missing skill {path}")
-    if tag is not None:
-        version = data["metadata"]["version"]
-        if tag.lstrip("v") != version:
-            fail(f"tag {tag} does not match marketplace.json version {version}")
+            if skill_version(skill_md) != version:
+                fail(f"{path}/SKILL.md: metadata.version {skill_version(skill_md)} != marketplace version {version}")
+    if tag is not None and tag.lstrip("v") != version:
+        fail(f"tag {tag} does not match marketplace.json version {version}")
 
 
 def main():

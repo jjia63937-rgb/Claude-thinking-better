@@ -2,6 +2,17 @@
 
 All notable changes to this project are documented here. Versions follow [Semantic Versioning](https://semver.org/).
 
+## [1.0.1] - 2026-09-30
+
+No change to how the skill reasons. This release improves installation and project docs, based on how widely used skill repositories are set up.
+
+### Added
+- `npx skills add jjia63937-rgb/Claude-thinking-better` install option for Claude Code, Codex, Cursor and other agents.
+- Direct download link for the latest `think-better.zip`, plus a note not to upload GitHub's "Source code" archive.
+- "Use it when", "Updating" and "When something goes wrong" sections in both READMEs.
+- `CONTRIBUTING.md`, issue templates ("The skill made an answer worse", "New test prompt") and a pull request template.
+- `metadata.version` in `SKILL.md` and `version` on the marketplace plugin entry. `scripts/package.py` fails if the three version fields disagree.
+
 ## [1.0.0] - 2026-09-30
 
 First public release of the `think-better` skill.
