@@ -1,0 +1,335 @@
+{
+  "per_eval": {
+    "eval-1-river-one-crossing": {
+      "with_skill": {
+        "passed": 4,
+        "total": 4,
+        "runs": [
+          {
+            "run": "with_skill/run-1/answer.md",
+            "passed": 2,
+            "total": 2,
+            "failed": [],
+            "note": "none"
+          },
+          {
+            "run": "with_skill/run-2/answer.md",
+            "passed": 2,
+            "total": 2,
+            "failed": [],
+            "note": "none (the 7-crossing figure for wolf-goat-cabbage is correct)"
+          }
+        ]
+      },
+      "without_skill": {
+        "passed": 4,
+        "total": 4,
+        "runs": [
+          {
+            "run": "without_skill/run-1/answer.md",
+            "passed": 2,
+            "total": 2,
+            "failed": [],
+            "note": "none"
+          },
+          {
+            "run": "without_skill/run-2/answer.md",
+            "passed": 2,
+            "total": 2,
+            "failed": [],
+            "note": "none"
+          }
+        ]
+      }
+    },
+    "eval-2-impossible-average-speed": {
+      "with_skill": {
+        "passed": 6,
+        "total": 6,
+        "runs": [
+          {
+            "run": "with_skill/run-1/answer.md",
+            "passed": 3,
+            "total": 3,
+            "failed": [],
+            "note": "Claim that the best realistic legal-speed average is 'mid-40s km/h' is an unstated assumption and a bit low (120 km/h gives 48 km/h per its own table); otherwise none."
+          },
+          {
+            "run": "with_skill/run-2/answer.md",
+            "passed": 3,
+            "total": 3,
+            "failed": [],
+            "note": "none"
+          }
+        ]
+      },
+      "without_skill": {
+        "passed": 6,
+        "total": 6,
+        "runs": [
+          {
+            "run": "without_skill/run-1/answer.md",
+            "passed": 3,
+            "total": 3,
+            "failed": [],
+            "note": "none"
+          },
+          {
+            "run": "without_skill/run-2/answer.md",
+            "passed": 3,
+            "total": 3,
+            "failed": [],
+            "note": "Minor loose phrasing: 'Even with infinite speed, the most you could ever average is 60 km/h' (only a limit, never reached, as it then says); otherwise none."
+          }
+        ]
+      }
+    },
+    "eval-3-latency-two-suspects": {
+      "with_skill": {
+        "passed": 10,
+        "total": 10,
+        "runs": [
+          {
+            "run": "with_skill/run-1/answer.md",
+            "passed": 5,
+            "total": 5,
+            "failed": [],
+            "note": "none"
+          },
+          {
+            "run": "with_skill/run-2/answer.md",
+            "passed": 5,
+            "total": 5,
+            "failed": [],
+            "note": "none"
+          }
+        ]
+      },
+      "without_skill": {
+        "passed": 8,
+        "total": 10,
+        "runs": [
+          {
+            "run": "without_skill/run-1/answer.md",
+            "passed": 4,
+            "total": 5,
+            "failed": [
+              "Considers at least three explanations (e.g. driver, middleware, interaction or other deploy change)"
+            ],
+            "note": "Somewhat long with a longer-term section beyond the question; no explicit confidence level."
+          },
+          {
+            "run": "without_skill/run-2/answer.md",
+            "passed": 4,
+            "total": 5,
+            "failed": [
+              "Considers at least three explanations (e.g. driver, middleware, interaction or other deploy change)"
+            ],
+            "note": "none; no explicit confidence level stated beyond 'if I had to bet'."
+          }
+        ]
+      }
+    },
+    "eval-4-correct-finance-numbers": {
+      "with_skill": {
+        "passed": 6,
+        "total": 6,
+        "runs": [
+          {
+            "run": "with_skill/run-1/answer.md",
+            "passed": 3,
+            "total": 3,
+            "failed": [],
+            "note": "none; concise, caveats (baseline, gross discount) are reasonable."
+          },
+          {
+            "run": "with_skill/run-2/answer.md",
+            "passed": 3,
+            "total": 3,
+            "failed": [],
+            "note": "No factual errors; somewhat long with extensive wording caveats, but none contradict the numbers."
+          }
+        ]
+      },
+      "without_skill": {
+        "passed": 6,
+        "total": 6,
+        "runs": [
+          {
+            "run": "without_skill/run-1/answer.md",
+            "passed": 3,
+            "total": 3,
+            "failed": [],
+            "note": "none; correct side example (25% up then 25% off = $37.50)."
+          },
+          {
+            "run": "without_skill/run-2/answer.md",
+            "passed": 3,
+            "total": 3,
+            "failed": [],
+            "note": "No errors in the math; somewhat excess length with four caveats, and the timing caveat assumes promo customers were subscribed in Jan-Feb."
+          }
+        ]
+      }
+    },
+    "eval-5-hospital-triage-thin-evidence": {
+      "with_skill": {
+        "passed": 16,
+        "total": 16,
+        "runs": [
+          {
+            "run": "with_skill/run-1/answer.md",
+            "passed": 8,
+            "total": 8,
+            "failed": [],
+            "note": "None. Does not explicitly phrase 'no harm found vs shown safe' but notes pilots can miss rare harms; proportionate length."
+          },
+          {
+            "run": "with_skill/run-2/answer.md",
+            "passed": 8,
+            "total": 8,
+            "failed": [],
+            "note": "The 'looks like a before-and-after comparison' inference is mild but hedged. Otherwise none; also distinguishes no harm found vs shown safe and names strongest counterargument."
+          }
+        ]
+      },
+      "without_skill": {
+        "passed": 11,
+        "total": 16,
+        "runs": [
+          {
+            "run": "without_skill/run-1/answer.md",
+            "passed": 5,
+            "total": 8,
+            "failed": [
+              "Does not assert study-design facts that were not given (e.g. that there was or was no control group, the sample size, or the baseline rates)",
+              "Notes that '15%' could be relative or percentage points",
+              "Pairs the explanations with evidence that would distinguish them"
+            ],
+            "note": "Asserts evidence is 'uncontrolled' (unstated design fact). Misses pp ambiguity and no-harm vs shown-safe distinction."
+          },
+          {
+            "run": "without_skill/run-2/answer.md",
+            "passed": 6,
+            "total": 8,
+            "failed": [
+              "Notes that '15%' could be relative or percentage points",
+              "Pairs the explanations with evidence that would distinguish them"
+            ],
+            "note": "No factual errors. Misses percentage-point ambiguity and does not distinguish 'no harm found' from 'shown safe'; no counterargument section."
+          }
+        ]
+      }
+    },
+    "eval-6-water-lily-missing-count": {
+      "with_skill": {
+        "passed": 10,
+        "total": 10,
+        "runs": [
+          {
+            "run": "with_skill/run-1/answer.md",
+            "passed": 5,
+            "total": 5,
+            "failed": [],
+            "note": "none; includes a correct verification (2*2^d = 2^48 gives d = 47)"
+          },
+          {
+            "run": "with_skill/run-2/answer.md",
+            "passed": 5,
+            "total": 5,
+            "failed": [],
+            "note": "none; the '原本放 n 株' bullet actually states the rule for a k-fold start, a slight mismatch in labeling"
+          }
+        ]
+      },
+      "without_skill": {
+        "passed": 9,
+        "total": 10,
+        "runs": [
+          {
+            "run": "without_skill/run-1/answer.md",
+            "passed": 5,
+            "total": 5,
+            "failed": [],
+            "note": "none; the claim that 1 plant is '這道題最常見的說法' is a mild unsupported assertion"
+          },
+          {
+            "run": "without_skill/run-2/answer.md",
+            "passed": 4,
+            "total": 5,
+            "failed": [
+              "The opening line or summary states the assumption for part 2, not only a caveat further down"
+            ],
+            "note": "none; the claim that 1 plant is the '最常見的理解' is a mild unsupported assertion"
+          }
+        ]
+      }
+    }
+  },
+  "totals": {
+    "with_skill": {
+      "passed": 52,
+      "total": 52,
+      "rate": 1.0
+    },
+    "without_skill": {
+      "passed": 44,
+      "total": 52,
+      "rate": 0.846
+    }
+  },
+  "lengths": {
+    "with_skill": {
+      "eval-1-river-one-crossing": [
+        51,
+        52
+      ],
+      "eval-2-impossible-average-speed": [
+        216,
+        240
+      ],
+      "eval-3-latency-two-suspects": [
+        490,
+        499
+      ],
+      "eval-4-correct-finance-numbers": [
+        232,
+        354
+      ],
+      "eval-5-hospital-triage-thin-evidence": [
+        693,
+        651
+      ],
+      "eval-6-water-lily-missing-count": [
+        319,
+        321
+      ]
+    },
+    "without_skill": {
+      "eval-1-river-one-crossing": [
+        20,
+        37
+      ],
+      "eval-2-impossible-average-speed": [
+        190,
+        208
+      ],
+      "eval-3-latency-two-suspects": [
+        464,
+        492
+      ],
+      "eval-4-correct-finance-numbers": [
+        189,
+        319
+      ],
+      "eval-5-hospital-triage-thin-evidence": [
+        519,
+        548
+      ],
+      "eval-6-water-lily-missing-count": [
+        261,
+        294
+      ]
+    }
+  }
+}

@@ -2,6 +2,12 @@
 
 All notable changes to this project are documented here. Versions follow [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Added
+- Blind with/without benchmark of v1.0.1 in `benchmarks/2026-09-30-v1.0.1/`: 52/52 checks passed with the skill vs. 44/52 without, with answers about 16% longer. Results are summarized in both READMEs.
+- Grading checks (`assertions`) for every prompt in `evals/evals.json`.
+
 ## [1.0.1] - 2026-09-30
 
 No change to how the skill reasons. This release improves installation and project docs, based on how widely used skill repositories are set up.

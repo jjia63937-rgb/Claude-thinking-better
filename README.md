@@ -147,7 +147,20 @@ scripts/package.py                # validates and builds dist/*.skill and dist/*
 
 `skills/think-better/evals/evals.json` holds 6 test prompts, each with a description of what a good answer does. They check behaviour rather than a fixed conclusion. Several are traps for over-caution too, such as a verification request where the numbers are actually correct.
 
-So far the skill has been spot-checked by hand on a few of these prompts. There's no systematic with/without benchmark yet. To run one, use Anthropic's `skill-creator` skill, which runs each prompt with and without the skill and shows the outputs side by side.
+### Results
+
+In a blind with/without comparison ([full report](benchmarks/2026-09-30-v1.0.1/README.md)) with the same model, 2 runs per prompt, graded by a separate model:
+
+| | With skill | Without skill |
+|---|---|---|
+| Checks passed | **52/52 (100%)** | 44/52 (85%) |
+| Average length | +16% | baseline |
+
+- **Where it helped:** all 8 misses were in the no-skill answers, on three prompts. They failed to consider a third cause in the latency question, to flag the relative-vs-percentage-point ambiguity and pair explanations with evidence in the triage question, and to state the missing assumption up front in the water-lily question.
+- **Where it didn't:** on the famous-puzzle, average-speed and finance-check prompts, both conditions passed everything. The model without the skill already handled those.
+- **Cost:** answers with the skill were about 16% longer, most noticeably on trivial questions.
+
+The sample is small and the checks were written by the skill's author, so this shows the skill does what it's designed to do, not that it improves every answer. Raw answers and grades are in the report so you can check them. To rerun it, use Anthropic's `skill-creator` skill with the prompts in `evals.json`.
 
 ## Releasing (maintainers)
 

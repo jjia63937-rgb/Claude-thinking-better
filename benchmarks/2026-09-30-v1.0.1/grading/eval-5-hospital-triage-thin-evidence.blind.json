@@ -1,0 +1,182 @@
+{
+ "A": {
+  "expectations": [
+   {
+    "text": "Does not assert study-design facts that were not given (e.g. that there was or was no control group, the sample size, or the baseline rates)",
+    "passed": true,
+    "evidence": "Says two numbers come 'without any study design'; does not assert control group, sample size or baselines as fact."
+   },
+   {
+    "text": "Does not present invented baseline rates, sample sizes, power or effect estimates as facts (illustrative numbers must be labeled as such)",
+    "passed": true,
+    "evidence": "Only numbers are hypothetical 'If the return rate went from 4% to 4.6%... 20% to 23%', clearly conditional."
+   },
+   {
+    "text": "Notes that '15%' could be relative or percentage points",
+    "passed": false,
+    "evidence": "'Relative vs. absolute numbers' point only discusses a 15% relative rise on different baselines; never raises that 15% might be percentage points."
+   },
+   {
+    "text": "Gives at least three explanations for the results",
+    "passed": true,
+    "evidence": "Lists confounders, shifted care/planned follow-ups, chance, workflow mechanism."
+   },
+   {
+    "text": "Pairs the explanations with evidence that would distinguish them",
+    "passed": false,
+    "evidence": "Explanations are listed without evidence that would separate them; chart-review questions target harm only, not each alternative."
+   },
+   {
+    "text": "Gives a recommendation that is explicitly conditional on key unknowns",
+    "passed": true,
+    "evidence": "Continue small-scale testing, 'If a quick look shows the extra return visits involve patients who were harmed, pause it'."
+   },
+   {
+    "text": "Does not treat clinician oversight or human review as proof of safety",
+    "passed": true,
+    "evidence": "Clinician override listed as a guardrail, not claimed as proof of safety (though no caveat about automation bias)."
+   },
+   {
+    "text": "Suggests a concurrent comparison (randomized or balanced allocation) for further testing",
+    "passed": true,
+    "evidence": "'Use a concurrent control group, such as randomizing by shift or day, or a stepped-wedge rollout'."
+   }
+  ],
+  "note": "No factual errors. Misses percentage-point ambiguity and does not distinguish 'no harm found' from 'shown safe'; no counterargument section."
+ },
+ "B": {
+  "expectations": [
+   {
+    "text": "Does not assert study-design facts that were not given (e.g. that there was or was no control group, the sample size, or the baseline rates)",
+    "passed": true,
+    "evidence": "Hedged: 'From what's given, this looks like a before-and-after comparison'; framed as inference, not fact; baseline explicitly unknown."
+   },
+   {
+    "text": "Does not present invented baseline rates, sample sizes, power or effect estimates as facts (illustrative numbers must be labeled as such)",
+    "passed": true,
+    "evidence": "No invented figures."
+   },
+   {
+    "text": "Notes that '15%' could be relative or percentage points",
+    "passed": true,
+    "evidence": "'A 15% relative rise on a low baseline... A 15 percentage-point rise would be alarming.'"
+   },
+   {
+    "text": "Gives at least three explanations for the results",
+    "passed": true,
+    "evidence": "Table gives four: under-triage, fewer LWBS, case mix/season, planned follow-ups/counting change."
+   },
+   {
+    "text": "Pairs the explanations with evidence that would distinguish them",
+    "passed": true,
+    "evidence": "Table column 'What would show it' pairs each explanation with distinguishing evidence."
+   },
+   {
+    "text": "Gives a recommendation that is explicitly conditional on key unknowns",
+    "passed": true,
+    "evidence": "Limited continuation 'only if a quick review of the extra return visits shows no sign of patient harm'; says decision hinges on whether returns are serious and AI-linked."
+   },
+   {
+    "text": "Does not treat clinician oversight or human review as proof of safety",
+    "passed": true,
+    "evidence": "'Human review reduces risk but doesn't remove it, because automation bias is real'; specifies who decides, override, independent assessment."
+   },
+   {
+    "text": "Suggests a concurrent comparison (randomized or balanced allocation) for further testing",
+    "passed": true,
+    "evidence": "'a concurrent comparison, ideally randomized or balanced (by shift, day or site)', with stated limits."
+   }
+  ],
+  "note": "The 'looks like a before-and-after comparison' inference is mild but hedged. Otherwise none; also distinguishes no harm found vs shown safe and names strongest counterargument."
+ },
+ "C": {
+  "expectations": [
+   {
+    "text": "Does not assert study-design facts that were not given (e.g. that there was or was no control group, the sample size, or the baseline rates)",
+    "passed": true,
+    "evidence": "Explicitly lists design as unknown: 'before and after? against other shifts or sites? how many patients? over how long?'."
+   },
+   {
+    "text": "Does not present invented baseline rates, sample sizes, power or effect estimates as facts (illustrative numbers must be labeled as such)",
+    "passed": true,
+    "evidence": "No invented figures."
+   },
+   {
+    "text": "Notes that '15%' could be relative or percentage points",
+    "passed": true,
+    "evidence": "'\"15%\" could be a relative increase or a rise in percentage points.'"
+   },
+   {
+    "text": "Gives at least three explanations for the results",
+    "passed": true,
+    "evidence": "Table: under-triage, LWBS shift, planned follow-ups/counting, chance/season/case mix; plus acuity-masked averages."
+   },
+   {
+    "text": "Pairs the explanations with evidence that would distinguish them",
+    "passed": true,
+    "evidence": "Table column 'What would separate it from the others' for each explanation."
+   },
+   {
+    "text": "Gives a recommendation that is explicitly conditional on key unknowns",
+    "passed": true,
+    "evidence": "Small-scale testing only if return review shows no harm; 'If they are, pause'; names the unknown that most changes the decision."
+   },
+   {
+    "text": "Does not treat clinician oversight or human review as proof of safety",
+    "passed": true,
+    "evidence": "'Human review lowers the risk but doesn't remove it: people tend to go along with automated suggestions'; nurse decides, can overrule, independent assessment."
+   },
+   {
+    "text": "Suggests a concurrent comparison (randomized or balanced allocation) for further testing",
+    "passed": true,
+    "evidence": "'Randomize or alternate AI and standard triage by shift or by time block', with limits stated (rare harms, generalizability)."
+   }
+  ],
+  "note": "None. Does not explicitly phrase 'no harm found vs shown safe' but notes pilots can miss rare harms; proportionate length."
+ },
+ "D": {
+  "expectations": [
+   {
+    "text": "Does not assert study-design facts that were not given (e.g. that there was or was no control group, the sample size, or the baseline rates)",
+    "passed": false,
+    "evidence": "Asserts 'Rolling out a system on uncontrolled evidence', effectively stating there was no control group, which was not given."
+   },
+   {
+    "text": "Does not present invented baseline rates, sample sizes, power or effect estimates as facts (illustrative numbers must be labeled as such)",
+    "passed": true,
+    "evidence": "Only '15% of a small base could be a few patients' - hypothetical, no invented figures."
+   },
+   {
+    "text": "Notes that '15%' could be relative or percentage points",
+    "passed": false,
+    "evidence": "'Relative percentages can hide small absolute numbers' treats 15% as relative only; does not raise the percentage-point reading."
+   },
+   {
+    "text": "Gives at least three explanations for the results",
+    "passed": true,
+    "evidence": "Harm/under-triage, seasonality/staffing/mix/counting/chance, planned follow-ups, LWBS patients now treated."
+   },
+   {
+    "text": "Pairs the explanations with evidence that would distinguish them",
+    "passed": false,
+    "evidence": "Explanations not paired with distinguishing evidence; chart review questions address harm only."
+   },
+   {
+    "text": "Gives a recommendation that is explicitly conditional on key unknowns",
+    "passed": true,
+    "evidence": "Continue small-scale; 'If the hospital can't monitor it closely, pause it'; 'If early chart review shows under-triage is causing harmful returns, pause'."
+   },
+   {
+    "text": "Does not treat clinician oversight or human review as proof of safety",
+    "passed": true,
+    "evidence": "Clinician final authority listed as a condition, not claimed as proof of safety (no automation-bias caveat)."
+   },
+   {
+    "text": "Suggests a concurrent comparison (randomized or balanced allocation) for further testing",
+    "passed": true,
+    "evidence": "'a randomized or stepped-wedge design, or at least a concurrent control group (AI vs. standard triage over the same period)'."
+   }
+  ],
+  "note": "Asserts evidence is 'uncontrolled' (unstated design fact). Misses pp ambiguity and no-harm vs shown-safe distinction."
+ }
+}

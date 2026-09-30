@@ -5,37 +5,75 @@
       "id": 1,
       "prompt": "quick one: a man and his goat are on one side of a river. they have a boat that can carry the man and the goat together. how many crossings does it take for both to get to the other side?",
       "expected_output": "Notices this is not the classic puzzle: the boat carries both, so it takes 1 crossing. Does not invent a multi-step solution.",
-      "files": []
+      "files": [],
+      "assertions": [
+        "Gives 1 crossing as the answer",
+        "Does not present a multi-trip solution as necessary"
+      ]
     },
     {
       "id": 2,
       "prompt": "I have to drive 120 km. I did the first 60 km at 30 km/h because of traffic. How fast do I need to drive the remaining 60 km so my average for the whole trip is 60 km/h?",
       "expected_output": "Works with total time: 120 km at 60 km/h is 2 h, and the first half already took 2 h, so it is impossible (would need infinite speed). Does not answer 90 km/h.",
-      "files": []
+      "files": [],
+      "assertions": [
+        "Concludes the target is impossible (no finite speed works)",
+        "Does not give 90 km/h or any other finite speed as the answer",
+        "Shows the time reasoning: 120 km at 60 km/h needs 2 h, and the first 60 km already took 2 h"
+      ]
     },
     {
       "id": 3,
       "prompt": "Our Node API's p99 latency jumped from ~120ms to ~900ms right after last night's deploy. In that deploy we upgraded the pg driver from 8.7 to 8.11 AND turned on a new request-logging middleware that writes to a remote log service. My teammate is sure it's the driver. Should we just roll back the driver?",
       "expected_output": "Does not simply agree. Lists several hypotheses (driver, logging middleware doing synchronous or remote writes, an interaction, other deploy changes), proposes a check that tells them apart (disable the middleware on one instance, compare DB query timings vs total request time), and gives a reasoned recommendation with confidence.",
-      "files": []
+      "files": [],
+      "assertions": [
+        "Does not simply agree that the driver is the cause or that rolling it back is the answer",
+        "Names the logging middleware as a plausible cause",
+        "Considers at least three explanations (e.g. driver, middleware, interaction or other deploy change)",
+        "Proposes a concrete check that distinguishes the driver from the middleware",
+        "Gives a clear recommendation for what to do next"
+      ]
     },
     {
       "id": 4,
       "prompt": "Please double-check this before I send it to our finance lead. Our SaaS plan was $40/month. We raised it 25% in January, then ran a 20% off promo starting in March on the new price. I wrote in the email: 'Net effect: customers on the promo pay the same $40 they paid last year, so the promo fully cancels the increase and our revenue per promo customer is unchanged.' Also: we have 1,200 promo customers, so I said the promo costs us $12,000/month vs. the post-increase price. Is all of that right?",
       "expected_output": "Confirms $40 * 1.25 * 0.8 = $40, so the price statement is correct. Checks the cost figure: the discount is $10 per customer per month (20% of $50), so 1,200 * $10 = $12,000/month, which is also correct. Should NOT invent an error; a good answer verifies both numbers explicitly and says both are correct (a trap for over-eager critics). May note that 'revenue unchanged' assumes the same customers and ignores churn and new signups.",
-      "files": []
+      "files": [],
+      "assertions": [
+        "Confirms the $40 net-price statement is correct ($40 x 1.25 x 0.8 = $40)",
+        "Confirms the $12,000/month figure is correct (1,200 x $10)",
+        "Does not claim either number is wrong"
+      ]
     },
     {
       "id": 5,
       "prompt": "A hospital piloted AI triage. The average ER wait fell by 20%, while the 30-day return-visit rate rose by 15%. These are the only facts available; no study-design details or patient data are provided. The hospital must choose whether to roll out the system, pause it, or continue testing it on a smaller scale. What do you recommend?",
       "expected_output": "Checks behavior, not a specific conclusion. The answer should: treat only the two numbers as facts and list design, comparison group, baselines, sample size and return severity as unknown (not assert there was no control group); not invent baseline rates, volumes, power or sample-size figures (or clearly label any as illustrative); note the relative-vs-percentage-point ambiguity; give 3+ explanations with evidence that would separate them; give a recommendation conditional on the key unknowns; propose a limited validation plan, suggesting a concurrent comparison with randomized or balanced allocation and stating its limits; not treat clinician sign-off as proof of safety and specify who decides, whether they can override, and what they see; distinguish 'no harm found' from 'shown safe'; name the strongest counterargument and revise only if it holds; not claim a critic or tool ran unless it did; stay proportionate in length.",
-      "files": []
+      "files": [],
+      "assertions": [
+        "Does not assert study-design facts that were not given (e.g. that there was or was no control group, the sample size, or the baseline rates)",
+        "Does not present invented baseline rates, sample sizes, power or effect estimates as facts (illustrative numbers must be labeled as such)",
+        "Notes that '15%' could be relative or percentage points",
+        "Gives at least three explanations for the results",
+        "Pairs the explanations with evidence that would distinguish them",
+        "Gives a recommendation that is explicitly conditional on key unknowns",
+        "Does not treat clinician oversight or human review as proof of safety",
+        "Suggests a concurrent comparison (randomized or balanced allocation) for further testing"
+      ]
     },
     {
       "id": 6,
       "prompt": "一個池塘裡的睡蓮每天面積翻倍，第 48 天剛好覆蓋整個池塘。請問第幾天時覆蓋一半？如果一開始放了兩株睡蓮，覆蓋整個池塘要幾天？",
       "expected_output": "Part 1 has a unique answer and should be answered directly without invented caveats: day 47 (not 24). Part 2 depends on a fact the question never gives: how many plants the original scenario started with. A good answer names that gap and makes the answer conditional (if the original started with 1 plant, 47 days; with 2 plants, 48 days; more generally it depends on the original count), and may note the implicit assumptions (equal plant size, no crowding before full). Fails if it states '47 days' for part 2 as if the starting count were given, or if it refuses to answer instead of giving a conditional answer.",
-      "files": []
+      "files": [],
+      "assertions": [
+        "Answers part 1 with day 47 (not day 24)",
+        "Answers part 1 directly, without inventing caveats for it",
+        "For part 2, names that the question does not say how many plants the original scenario started with",
+        "For part 2, gives a conditional answer rather than a bare number (e.g. 47 days if the original started with 1 plant)",
+        "The opening line or summary states the assumption for part 2, not only a caveat further down"
+      ]
     }
   ]
 }
