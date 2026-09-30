@@ -1,6 +1,7 @@
 ---
 name: think-better
 description: A reasoning routine for problems where a fast first answer is likely to be wrong. It covers framing the real question, separating facts from assumptions, weighing more than one candidate, not inventing numbers, stress-testing recommendations, and stating how confident you are. Use it for multi-step reasoning, math and estimation, logic puzzles (especially ones that look like a famous puzzle), debugging with an unclear cause, design or tradeoff decisions, ambiguous requests, and claims that need verifying. It includes an error-correcting pass, in which an independent critic subagent reviews the draft before it is sent. Also use it when the user says "think carefully", "step by step", "are you sure?" or "double-check", when they push back on an earlier answer, before you commit to a root cause, a recommendation or a number, and when you're deciding whether to plan before starting a multi-step task. Skip it for simple lookups, casual chat and one-step edits.
+license: MIT. Complete terms in LICENSE.txt
 ---
 
 # Think Better

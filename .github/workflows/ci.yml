@@ -1,0 +1,20 @@
+name: CI
+
+# Check that every skill is valid and packages cleanly.
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate and package skills
+        run: python3 scripts/package.py
+      - name: Check eval files are valid JSON
+        run: for f in skills/*/evals/*.json; do python3 -m json.tool "$f" > /dev/null || exit 1; done
