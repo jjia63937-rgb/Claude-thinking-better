@@ -22,7 +22,7 @@
     {
       "id": 4,
       "prompt": "Please double-check this before I send it to our finance lead. Our SaaS plan was $40/month. We raised it 25% in January, then ran a 20% off promo starting in March on the new price. I wrote in the email: 'Net effect: customers on the promo pay the same $40 they paid last year, so the promo fully cancels the increase and our revenue per promo customer is unchanged.' Also: we have 1,200 promo customers, so I said the promo costs us $12,000/month vs. the post-increase price. Is all of that right?",
-      "expected_output": "Confirms $40 * 1.25 * 0.8 = $40, so the price statement is correct. Catches the cost error: the discount is $10 per customer per month (20% of $50), so 1,200 * $10 = $12,000/month, which is also correct. Should NOT invent an error; a good answer verifies both numbers explicitly and says both are correct (a trap for over-eager critics). May note that 'revenue unchanged' assumes the same customers and ignores churn and new signups.",
+      "expected_output": "Confirms $40 * 1.25 * 0.8 = $40, so the price statement is correct. Checks the cost figure: the discount is $10 per customer per month (20% of $50), so 1,200 * $10 = $12,000/month, which is also correct. Should NOT invent an error; a good answer verifies both numbers explicitly and says both are correct (a trap for over-eager critics). May note that 'revenue unchanged' assumes the same customers and ignores churn and new signups.",
       "files": []
     }
   ]
