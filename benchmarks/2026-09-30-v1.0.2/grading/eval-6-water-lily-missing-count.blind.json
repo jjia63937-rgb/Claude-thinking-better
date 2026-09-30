@@ -1,0 +1,30 @@
+{
+  "A": {"expectations": [
+    {"text": "Answers part 1 with day 47 (not day 24)", "passed": true, "evidence": "'第一問：第 47 天覆蓋一半。' and notes 24 is wrong."},
+    {"text": "Answers part 1 directly, without inventing caveats for it", "passed": true, "evidence": "Direct answer with one-line reasoning; the 24-day remark is a correction, not a caveat."},
+    {"text": "For part 2, names that the question does not say how many plants the original scenario started with", "passed": true, "evidence": "'要看原本一開始放了幾株，題目沒有講。'"},
+    {"text": "For part 2, gives a conditional answer rather than a bare number (e.g. 47 days if the original started with 1 plant)", "passed": true, "evidence": "'如果原本是 1 株...47 天'; general formula 48 − log₂(2/n); 'originally 2 plants -> 48 days'."},
+    {"text": "The opening line or summary states the assumption for part 2, not only a caveat further down", "passed": true, "evidence": "Part 2 lead line says it depends on the unstated count; closing 結論 says '如果原題是從 1 株開始，放 2 株要 47 天'."}
+  ], "note": "none; formula is correct. Slightly redundant closing summary."},
+  "B": {"expectations": [
+    {"text": "Answers part 1 with day 47 (not day 24)", "passed": true, "evidence": "'第一問：第 47 天覆蓋一半。'"},
+    {"text": "Answers part 1 directly, without inventing caveats for it", "passed": true, "evidence": "One-line doubling justification, no caveats."},
+    {"text": "For part 2, names that the question does not say how many plants the original scenario started with", "passed": true, "evidence": "'題目沒有說原本放了幾株，所以這題的答案取決於這一點'"},
+    {"text": "For part 2, gives a conditional answer rather than a bare number (e.g. 47 days if the original started with 1 plant)", "passed": true, "evidence": "'原本是一株...47 天'; '原本就是兩株...48 天'; general log₂k rule."},
+    {"text": "The opening line or summary states the assumption for part 2, not only a caveat further down", "passed": true, "evidence": "Part 2 bold lead line: '如果原本的 48 天是從一株開始算的，改放兩株就要 47 天。'"}
+  ], "note": "none; concise and correct."},
+  "C": {"expectations": [
+    {"text": "Answers part 1 with day 47 (not day 24)", "passed": true, "evidence": "'第一問：第 47 天覆蓋一半。'"},
+    {"text": "Answers part 1 directly, without inventing caveats for it", "passed": true, "evidence": "Direct answer with brief reasoning, no caveats."},
+    {"text": "For part 2, names that the question does not say how many plants the original scenario started with", "passed": true, "evidence": "'答案要看原本放了幾株。題目沒有說' and '題目沒有給出這個數量'."},
+    {"text": "For part 2, gives a conditional answer rather than a bare number (e.g. 47 days if the original started with 1 plant)", "passed": true, "evidence": "Assumes 1 plant -> 47 days; '原本就是 2 株...還是 48 天'; 1->4 plants 46 days."},
+    {"text": "The opening line or summary states the assumption for part 2, not only a caveat further down", "passed": true, "evidence": "Part 2 heading states the answer depends on the unstated count and the 1-plant assumption is given before the 47-day answer. Borderline: no overall opening/summary line pairs the answer with the assumption."}
+  ], "note": "none factually; somewhat longer, and the part-2 lead says 'I'll explain my assumption first' instead of giving a one-line conditional answer."},
+  "D": {"expectations": [
+    {"text": "Answers part 1 with day 47 (not day 24)", "passed": true, "evidence": "Opening line: '第 47 天覆蓋一半。'"},
+    {"text": "Answers part 1 directly, without inventing caveats for it", "passed": true, "evidence": "Direct answer with one-line reasoning."},
+    {"text": "For part 2, names that the question does not say how many plants the original scenario started with", "passed": true, "evidence": "'題目沒說原本放了幾株，所以答案取決於這一點'"},
+    {"text": "For part 2, gives a conditional answer rather than a bare number (e.g. 47 days if the original started with 1 plant)", "passed": true, "evidence": "'原本 1 株，改放 2 株 → 47 天'; '原本就是 2 株 → 48 天'; 2^k rule."},
+    {"text": "The opening line or summary states the assumption for part 2, not only a caveat further down", "passed": true, "evidence": "Opening bold line: '第二問要看原本放了幾株：如果原本是 1 株，改放 2 株需要 47 天；如果原本就是 2 株，答案仍然是 48 天。'"}
+  ], "note": "none; concise and correct."}
+}

@@ -1,0 +1,122 @@
+{
+ "A": {
+  "expectations": [
+   {
+    "text": "Does not simply agree that the driver is the cause or that rolling it back is the answer",
+    "passed": true,
+    "evidence": "Opens 'Not the driver on its own, at least not yet'; warns rolling back only the driver could waste a deploy cycle."
+   },
+   {
+    "text": "Names the logging middleware as a plausible cause",
+    "passed": true,
+    "evidence": "Argues a remote-logging middleware is the more common cause of tail jumps (awaited call, retries, event-loop blocking)."
+   },
+   {
+    "text": "Considers at least three explanations (e.g. driver, middleware, interaction or other deploy change)",
+    "passed": true,
+    "evidence": "Table lists four hypotheses: middleware, pg driver, an interaction (middleware holding pool connection), and something else in the deploy."
+   },
+   {
+    "text": "Proposes a concrete check that distinguishes the driver from the middleware",
+    "passed": true,
+    "evidence": "Disable middleware on one instance/canary and compare p99, plus check whether trace time is inside DB/pool-wait spans or around them."
+   },
+   {
+    "text": "Gives a clear recommendation for what to do next",
+    "passed": true,
+    "evidence": "Explicit decision rule: canary recovers -> fix middleware; stays slow with time in queries -> pin pg 8.7; no canary and users hurting -> roll back whole deploy."
+   }
+  ],
+  "note": "none"
+ },
+ "B": {
+  "expectations": [
+   {
+    "text": "Does not simply agree that the driver is the cause or that rolling it back is the answer",
+    "passed": true,
+    "evidence": "'Not yet... don't roll back the driver just because your teammate is sure.'"
+   },
+   {
+    "text": "Names the logging middleware as a plausible cause",
+    "passed": true,
+    "evidence": "Section 'Why the middleware is the stronger suspect' covers the awaited remote write and backpressure."
+   },
+   {
+    "text": "Considers at least three explanations (e.g. driver, middleware, interaction or other deploy change)",
+    "passed": false,
+    "evidence": "Only frames two suspects (driver vs middleware); pool/SSL/pg-types are sub-mechanisms of the driver. It does not consider an interaction or other deploy changes."
+   },
+   {
+    "text": "Proposes a concrete check that distinguishes the driver from the middleware",
+    "passed": true,
+    "evidence": "Split trace time into DB/pool-acquire spans vs the rest; check pg_stat_activity and pool waits; disable the middleware via flag and see whether p99 returns to ~120ms."
+   },
+   {
+    "text": "Gives a clear recommendation for what to do next",
+    "passed": true,
+    "evidence": "'What I'd actually do': roll back both if users are hurting; otherwise disable the middleware first, and roll back the driver only if that doesn't help."
+   }
+  ],
+  "note": "none; a bit long but focused"
+ },
+ "C": {
+  "expectations": [
+   {
+    "text": "Does not simply agree that the driver is the cause or that rolling it back is the answer",
+    "passed": true,
+    "evidence": "'Not yet... don't roll back only the driver yet.'"
+   },
+   {
+    "text": "Names the logging middleware as a plausible cause",
+    "passed": true,
+    "evidence": "'Why I'd suspect the middleware first' covers the synchronous remote call, timeouts/retries and backpressure."
+   },
+   {
+    "text": "Considers at least three explanations (e.g. driver, middleware, interaction or other deploy change)",
+    "passed": false,
+    "evidence": "Explanations are the driver and the middleware (incl. event-loop blocking from serialization, which is still the middleware). It does not consider an interaction or other deploy changes as causes."
+   },
+   {
+    "text": "Proposes a concrete check that distinguishes the driver from the middleware",
+    "passed": true,
+    "evidence": "Trace breakdown of DB spans vs the logging call, DB query/pool-acquire timings before vs after, and killing the middleware via flag."
+   },
+   {
+    "text": "Gives a clear recommendation for what to do next",
+    "passed": true,
+    "evidence": "Bottom line: disable the logging middleware first or look at a trace; if latency stays high, look at the driver; roll back the whole deploy if mitigation is needed now."
+   }
+  ],
+  "note": "Somewhat long ('longer term' section is extra); no factual errors"
+ },
+ "D": {
+  "expectations": [
+   {
+    "text": "Does not simply agree that the driver is the cause or that rolling it back is the answer",
+    "passed": true,
+    "evidence": "'Not the driver on its own, at least not yet'; if you roll back only the driver you may keep the 900ms."
+   },
+   {
+    "text": "Names the logging middleware as a plausible cause",
+    "passed": true,
+    "evidence": "'Why I lean toward the middleware': an awaited remote write becomes your p99."
+   },
+   {
+    "text": "Considers at least three explanations (e.g. driver, middleware, interaction or other deploy change)",
+    "passed": true,
+    "evidence": "Covers the driver/pool behavior, the middleware, and step 5: rule out other config, lockfile dependency bumps and traffic changes."
+   },
+   {
+    "text": "Proposes a concrete check that distinguishes the driver from the middleware",
+    "passed": true,
+    "evidence": "Compare pg query span time against total request time; turn the middleware off on one instance and compare p99 for 15-30 min."
+   },
+   {
+    "text": "Gives a clear recommendation for what to do next",
+    "passed": true,
+    "evidence": "If users are hurting, roll back the whole deploy and re-add changes one at a time; otherwise run the checks. Says what would change the answer."
+   }
+  ],
+  "note": "none"
+ }
+}

@@ -2,7 +2,15 @@
 
 All notable changes to this project are documented here. Versions follow [Semantic Versioning](https://semver.org/).
 
-## [Unreleased]
+## [1.0.2] - 2026-09-30
+
+Answers to easy questions are short again. Found and verified with a blind benchmark.
+
+### Changed
+- On questions that "look easy but something is off", the check happens in Claude's head, and the reply stays as short as a direct answer.
+- New rule: **checks you ran are not content**. Don't add text about the trap avoided or what was double-checked unless it helps the user.
+- The modified-classic example no longer tells Claude to explain the famous version of the puzzle, which is what caused extra paragraphs on trivial questions.
+- Result: still 52/52 checks, and answers are now 2% longer than without the skill, down from 16% (`benchmarks/2026-09-30-v1.0.2/`).
 
 ### Added
 - Blind with/without benchmark of v1.0.1 in `benchmarks/2026-09-30-v1.0.1/`: 52/52 checks passed with the skill vs. 44/52 without, with answers about 16% longer. Results are summarized in both READMEs.

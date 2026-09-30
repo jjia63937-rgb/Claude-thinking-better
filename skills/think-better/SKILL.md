@@ -3,7 +3,7 @@ name: think-better
 description: A reasoning routine for problems where a fast first answer is likely to be wrong. It covers framing the real question, separating facts from assumptions, weighing more than one candidate, not inventing numbers, stress-testing recommendations, and stating how confident you are. Use it for multi-step reasoning, math and estimation, logic puzzles (especially ones that look like a famous puzzle), debugging with an unclear cause, design or tradeoff decisions, ambiguous requests, and claims that need verifying. It includes an error-correcting pass, in which an independent critic subagent reviews the draft before it is sent. Also use it when the user says "think carefully", "step by step", "are you sure?" or "double-check", when they push back on an earlier answer, before you commit to a root cause, a recommendation or a number, and when you're deciding whether to plan before starting a multi-step task. Skip it for simple lookups, casual chat and one-step edits.
 license: MIT. Complete terms in LICENSE.txt
 metadata:
-  version: "1.0.1"
+  version: "1.0.2"
 ---
 
 # Think Better
@@ -19,7 +19,7 @@ Match the effort to **stakes × uncertainty**:
 | Situation | What to do |
 |---|---|
 | Easy and low stakes | Answer directly. Don't run the routine. |
-| Looks easy, but something is off | Do the framing step and one check. |
+| Looks easy, but something is off | Do the framing step and one check, in your head. The reply stays as short as a direct answer would be. |
 | Hard, ambiguous, or costly if wrong | Use the loop below. More thinking doesn't mean a longer answer: keep the reply as short as the decision allows. |
 
 Signs that "looks easy" is a trap:
@@ -153,11 +153,12 @@ Re-derive the answer. Don't defer by reflex, and don't defend it by reflex.
 - Leave out the ritual. Don't write "Step 1: Frame". A reader should see a careful answer, not a filled-in form.
 - If the user asks for a specific format, follow it.
 - For math and puzzles, show the work compactly so an error would be visible.
+- **Checks you ran are not content.** When a question has a clear answer, give the answer and the one reason that makes it true. Don't add a paragraph about the trap you avoided, the famous version of the puzzle, or what you double-checked, unless the user asked or it changes what they'll do.
 
 ## 7. Examples
 
 **A modified classic.** "A farmer needs to cross a river with a wolf, a goat and a cabbage. The boat holds the farmer and all three. How many crossings?"
-The pattern-matched answer is 7. Framing catches that the boat holds everything, so the answer is **1 crossing**. Say so, and note that it differs from the classic version.
+The pattern-matched answer is 7. Framing catches that the boat holds everything, so the answer is **1 crossing**. That catch happens in your head. The reply is one or two sentences: "One crossing: the boat holds the farmer and all three, so nothing is ever left alone." Mention the classic version only if the user seems to expect its answer.
 
 **A debugging question with a suspect already named.** "Latency jumped after we upgraded the DB driver. We also added logging middleware in the same deploy. It's the driver, right?"
 Generate: driver, middleware, an interaction between them, or something else in the deploy (a config change, traffic). Break it: find the observation that tells them apart. Toggle the middleware off in one instance, compare per-query timing before and after, or check whether the extra latency is inside DB calls or around them. Answer with the plan, and with the hypothesis that fits the evidence best so far, not with a yes.

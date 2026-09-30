@@ -5,13 +5,13 @@
   },
   "metadata": {
     "description": "Skills that help Claude reason more carefully and make better-calibrated decisions",
-    "version": "1.0.1"
+    "version": "1.0.2"
   },
   "plugins": [
     {
       "name": "think-better",
       "description": "A reasoning routine for problems where a fast first answer is likely to be wrong: separates facts from assumptions, avoids invented precision, stress-tests recommendations, and runs an optional critic pass",
-      "version": "1.0.1",
+      "version": "1.0.2",
       "source": "./",
       "strict": false,
       "skills": [

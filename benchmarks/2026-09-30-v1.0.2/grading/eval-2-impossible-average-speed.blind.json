@@ -1,0 +1,22 @@
+{
+  "A": {"expectations": [
+    {"text": "Concludes the target is impossible (no finite speed works)", "passed": true, "evidence": "\"no speed will get you there. It isn't possible\"; would need zero time / infinite speed."},
+    {"text": "Does not give 90 km/h or any other finite speed as the answer", "passed": true, "evidence": "90 km/h appears only in a table showing it yields 45 km/h, and is explicitly called the trap."},
+    {"text": "Shows the time reasoning: 120 km at 60 km/h needs 2 h, and the first 60 km already took 2 h", "passed": true, "evidence": "\"120 ÷ 60 = 2 hours\" and \"60 ÷ 30 = 2 hours. That's the entire time budget gone.\""}
+  ], "note": "none; the table of example speeds is useful and brief"},
+  "B": {"expectations": [
+    {"text": "Concludes the target is impossible (no finite speed works)", "passed": true, "evidence": "\"No speed will get you there\"; all the time is already used up."},
+    {"text": "Does not give 90 km/h or any other finite speed as the answer", "passed": true, "evidence": "Calls 90 km/h the tempting answer and shows it gives 45 km/h."},
+    {"text": "Shows the time reasoning: 120 km at 60 km/h needs 2 h, and the first 60 km already took 2 h", "passed": true, "evidence": "\"120 ÷ 60 = 2 hours. But the first 60 km at 30 km/h already took 60 ÷ 30 = 2 hours.\""}
+  ], "note": "Minor imprecision: \"not even an infinitely fast one\". In the idealised limit, infinite speed (zero time) would give exactly 60 km/h. The offer to work from a target arrival time is a small, reasonable extra."},
+  "C": {"expectations": [
+    {"text": "Concludes the target is impossible (no finite speed works)", "passed": true, "evidence": "\"It can't be done. No finite speed gets your average ... up to 60 km/h.\""},
+    {"text": "Does not give 90 km/h or any other finite speed as the answer", "passed": true, "evidence": "Says '90 km/h, because (30 + 90) / 2 = 60' is wrong, and that 90 km/h gives 45 km/h."},
+    {"text": "Shows the time reasoning: 120 km at 60 km/h needs 2 h, and the first 60 km already took 2 h", "passed": true, "evidence": "Bullets: \"120 ÷ 60 = 2 hours\" and \"60 ÷ 30 = 2 hours\"; 0 hours left."}
+  ], "note": "none"},
+  "D": {"expectations": [
+    {"text": "Concludes the target is impossible (no finite speed works)", "passed": true, "evidence": "\"it can't be done. No speed is fast enough\"; the last 60 km would have to take zero time, needing infinite speed."},
+    {"text": "Does not give 90 km/h or any other finite speed as the answer", "passed": true, "evidence": "Explains why the 90 km/h intuition fails: it gives about a 45 km/h average."},
+    {"text": "Shows the time reasoning: 120 km at 60 km/h needs 2 h, and the first 60 km already took 2 h", "passed": true, "evidence": "\"finishing the whole trip in 2 hours (120 ÷ 60)\" and \"took 2 hours (60 ÷ 30)\"."}
+  ], "note": "Slightly longer than needed: it adds a table and a driving-safety aside. No factual errors."}
+}
