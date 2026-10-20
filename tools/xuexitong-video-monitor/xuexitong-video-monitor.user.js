@@ -1,24 +1,84 @@
 // ==UserScript==
 // @name         学习通视频播放监测
 // @namespace    https://github.com/jjia63937-rgb/Claude-thinking-better
-// @version      1.3.0
-// @description  监测学习通页面（包括嵌套 iframe）里视频的播放状态。视频在后台被暂停时自动继续播放，播完自动进入下一节；暂停、播完、卡住或弹出题目时，用系统通知和提示音提醒你。
+// @version      1.4.0
+// @description  监测学习通页面（包括嵌套 iframe）里视频的播放状态。阻止页面检测失去焦点自动暂停，视频在后台被暂停时自动继续播放，播完自动进入下一节；暂停、播完、卡住或弹出题目时，用系统通知和提示音提醒你。
 // @match        *://*.chaoxing.com/*
 // @grant        GM_notification
 // @grant        GM_getValue
 // @grant        GM_setValue
 // @grant        GM_registerMenuCommand
-// @run-at       document-idle
+// @grant        unsafeWindow
+// @run-at       document-start
 // ==/UserScript==
 
 // 同一份文件既是 Tampermonkey 用户脚本，也是 Edge 扩展的 content script（见 manifest.json）。
+// 扩展还会把它和 focus-guard.js 一起注入到页面自己的环境里，那时只执行下面的 focusGuard（见 background.js）。
 
 (function () {
   'use strict';
 
-  const VERSION = '1.3.0';
+  // 让页面以为自己一直在前台、有焦点：学习通靠这些判断你有没有切走，切走就暂停视频。
+  // 必须在学习通自己的脚本之前、在页面自己的 JS 环境里运行，所以单独成一个函数，按环境注入。
+  function focusGuard(win) {
+    if (win.__xxtRealFocus) return;
+    const doc = win.document;
+    const proto = win.Document.prototype;
+    const realHidden = Object.getOwnPropertyDescriptor(proto, 'hidden').get;
+    const realHasFocus = proto.hasFocus;
+    // 本脚本自己判断"页面在不在后台"时要用真实状态
+    Object.defineProperty(win, '__xxtRealFocus', {
+      value: { hidden: () => realHidden.call(doc), hasFocus: () => realHasFocus.call(doc) },
+    });
+    const fake = { hidden: false, webkitHidden: false, visibilityState: 'visible', webkitVisibilityState: 'visible' };
+    for (const key of Object.keys(fake)) {
+      if (key in proto) Object.defineProperty(proto, key, { configurable: true, enumerable: true, get: () => fake[key] });
+    }
+    proto.hasFocus = function hasFocus() {
+      return true;
+    };
+    // 整个页面失去焦点、切到后台的事件不让页面收到（输入框之类元素自己的 blur 不受影响）
+    const swallow = (e) => {
+      if (e.target === win || e.target === doc) e.stopImmediatePropagation();
+    };
+    for (const type of ['blur', 'visibilitychange', 'webkitvisibilitychange']) win.addEventListener(type, swallow, true);
+  }
+
+  if (window.__xxtFocusGuardOnly === true) {
+    focusGuard(window);
+    return;
+  }
+
+  const VERSION = '1.4.0';
   const MSG_KEY = '__xxtVideoMonitor';
   const IS_TOP = window === window.top;
+  const SETTINGS_KEY = 'xxtVideoMonitorSettings';
+
+  // Tampermonkey 版：在这里注入 focusGuard（扩展版由 background.js 注册，不走这里）
+  if (typeof GM_info !== 'undefined') {
+    let guardOn = true;
+    try {
+      const saved = GM_getValue(SETTINGS_KEY, null);
+      if (saved && saved.focusGuard === false) guardOn = false;
+    } catch (e) {
+      // 读不到就按默认开启
+    }
+    if (guardOn) {
+      try {
+        focusGuard(typeof unsafeWindow !== 'undefined' ? unsafeWindow : window);
+      } catch (e) {
+        // 拿不到页面环境就靠下面的 script 标签
+      }
+      try {
+        const el = document.createElement('script');
+        el.textContent = '(' + focusGuard.toString() + ')(window);';
+        (document.head || document.documentElement).append(el);
+        el.remove();
+      } catch (e) {
+        // 页面禁止内联脚本时注入不了，自动续播仍然兜底
+      }
+    }
+  }
 
   // 学习通视频里弹出的随堂题目。页面结构改版后可能需要更新这个选择器。
   const QUIZ_SELECTOR = '.ans-videoquiz';
@@ -199,8 +259,7 @@
   // ---------------------------------------------------------------------------
 
   // 设置存在扩展或 Tampermonkey 自己的存储里，学习通的各个子域名（mooc1、mooc1-1……）共用一份。
-  const SETTINGS_KEY = 'xxtVideoMonitorSettings';
-  const settings = { autoResume: true, autoNext: true, notify: true, sound: true, onlyBackground: true, collapsed: false };
+  const settings = { focusGuard: true, autoResume: true, autoNext: true, notify: true, sound: true, onlyBackground: true, collapsed: false };
   const hasExtStorage = typeof chrome !== 'undefined' && !!(chrome.storage && chrome.storage.local);
   try {
     // 旧版本存在页面 localStorage 里，先读出来当默认值
@@ -370,6 +429,7 @@
       }
     }
     checkAutoNext(now);
+    clearTitleAlert();
     render();
   }
   setInterval(tick, 1000);
@@ -468,10 +528,22 @@
 
   // ---- 提醒 ----
 
-  const originalTitle = document.title;
   let titleAlert = '';
 
+  // 不带提醒前缀的网页标题
+  function baseTitle() {
+    return titleAlert && document.title.startsWith(titleAlert) ? document.title.slice(titleAlert.length) : document.title;
+  }
+
+  // 真实的前后台状态。focusGuard 跟本脚本在同一个环境里时，document.hidden 等已经被改过，要用它留下的原始值。
   function pageInBackground() {
+    let real = window.__xxtRealFocus;
+    try {
+      if (!real && typeof unsafeWindow !== 'undefined') real = unsafeWindow.__xxtRealFocus;
+    } catch (e) {
+      // 用下面的
+    }
+    if (real) return real.hidden() || !real.hasFocus();
     return document.hidden || !document.hasFocus();
   }
 
@@ -485,8 +557,9 @@
     if (settings.sound) beep();
     if (settings.notify) notify('学习通：' + title, body);
     if (pageInBackground()) {
+      const base = baseTitle();
       titleAlert = '【' + title + '】';
-      document.title = titleAlert + originalTitle;
+      document.title = titleAlert + base;
     }
   }
 
@@ -496,6 +569,7 @@
       titleAlert = '';
     }
   }
+  // visibilitychange 会被 focusGuard 拦下，所以另外在 tick 里也检查一次
   document.addEventListener('visibilitychange', clearTitleAlert);
   window.addEventListener('focus', clearTitleAlert);
 
@@ -684,6 +758,7 @@
       .empty { color: #6b7280; }
       .opts { border-top: 1px solid #e5e7eb; margin-top: 8px; padding-top: 6px; }
       .opts label { display: block; cursor: pointer; }
+      .opts small { color: #6b7280; }
       button { margin-top: 6px; font: inherit; padding: 2px 10px; border: 1px solid #d1d5db;
                border-radius: 4px; background: #fff; cursor: pointer; }
       button:hover { background: #f3f4f6; }
@@ -698,6 +773,7 @@
         <div class="chapter"></div>
         <div class="list"></div>
         <div class="opts">
+          <label><input type="checkbox" data-key="focusGuard"> 阻止切走窗口时自动暂停<small>（刷新页面后生效）</small></label>
           <label><input type="checkbox" data-key="autoResume"> 后台被暂停时自动继续播放</label>
           <label><input type="checkbox" data-key="autoNext"> 播完自动播放下一节</label>
           <label><input type="checkbox" data-key="notify"> 系统通知</label>
@@ -776,7 +852,7 @@
   }
 
   function render() {
-    chapterEl.textContent = chapterText() || originalTitle;
+    chapterEl.textContent = chapterText() || baseTitle();
     box.classList.toggle('diag-open', diagOpen);
     if (diagOpen && settings.collapsed) {
       settings.collapsed = false;
