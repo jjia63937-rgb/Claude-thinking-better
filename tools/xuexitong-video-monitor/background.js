@@ -25,3 +25,8 @@ chrome.notifications.onClicked.addListener((id) => {
 });
 
 chrome.notifications.onClosed.addListener((id) => tabsByNotification.delete(id));
+
+// 点工具栏上的扩展图标：让当前学习通页面生成诊断信息。不是学习通页面时什么也不做。
+chrome.action.onClicked.addListener((tab) => {
+  chrome.tabs.sendMessage(tab.id, { type: 'xxt-diag' }, { frameId: 0 }).catch(() => {});
+});

@@ -1,10 +1,13 @@
 // ==UserScript==
 // @name         学习通视频播放监测
 // @namespace    https://github.com/jjia63937-rgb/Claude-thinking-better
-// @version      1.2.0
+// @version      1.3.0
 // @description  监测学习通页面（包括嵌套 iframe）里视频的播放状态。视频在后台被暂停时自动继续播放，播完自动进入下一节；暂停、播完、卡住或弹出题目时，用系统通知和提示音提醒你。
 // @match        *://*.chaoxing.com/*
 // @grant        GM_notification
+// @grant        GM_getValue
+// @grant        GM_setValue
+// @grant        GM_registerMenuCommand
 // @run-at       document-idle
 // ==/UserScript==
 
@@ -13,6 +16,7 @@
 (function () {
   'use strict';
 
+  const VERSION = '1.3.0';
   const MSG_KEY = '__xxtVideoMonitor';
   const IS_TOP = window === window.top;
 
@@ -31,7 +35,9 @@
   const ADVANCE_CHECK_MS = 8000;     // 点了"下一节"这么久页面还没变，就当没进去
   const AUTO_START_WAIT_MS = 20000;  // 进入下一节后等这么久还没发现视频，就提醒你
   const REPORT_INTERVAL_MS = 1000;
-  const STALE_MS = 6000;          // 这么久没收到某个视频的汇报，就认为它所在的 iframe 已经关掉了
+  // 标签页在后台久了，浏览器会把定时器压到一分钟一次，所以"多久没汇报算消失"要留足余量。
+  // 视频所在 iframe 被关掉时会立刻发现（见 pagehide 和 source.closed），不靠这个。
+  const STALE_MS = 90000;
 
   // ---------------------------------------------------------------------------
   // 每个 frame：找到本 frame 里的 <video>，把状态汇报给顶层页面
@@ -43,6 +49,34 @@
 
   function isVisible(el) {
     return !!el && el.getClientRects().length > 0 && getComputedStyle(el).visibility !== 'hidden';
+  }
+
+  function quizShown() {
+    return Array.from(document.querySelectorAll(QUIZ_SELECTOR)).some(isVisible);
+  }
+
+  // 本 frame 在页面里的位置，比如 [0, 1] 表示顶层第 1 个 iframe 里的第 2 个 iframe。
+  // 用来让面板按页面上的先后顺序排列视频。跨域时也能比较 frame 对象，所以拿得到。
+  function framePath() {
+    const path = [];
+    try {
+      let w = window;
+      while (w !== w.top) {
+        const p = w.parent;
+        let idx = -1;
+        for (let i = 0; i < p.frames.length; i++) {
+          if (p.frames[i] === w) {
+            idx = i;
+            break;
+          }
+        }
+        path.unshift(idx);
+        w = p;
+      }
+    } catch (e) {
+      // 拿不到就不排序
+    }
+    return path;
   }
 
   function videoState(v, info) {
@@ -57,25 +91,29 @@
     return 'playing';
   }
 
-  function report(v) {
-    const info = tracked.get(v);
-    if (!info) return;
-    const msg = {
-      [MSG_KEY]: 1,
-      id: info.id,
-      state: videoState(v, info),
-      bufferingSince: info.bufferingSince,
-      current: v.currentTime,
-      duration: v.duration,
-      rate: v.playbackRate,
-      quiz: Array.from(document.querySelectorAll(QUIZ_SELECTOR)).some(isVisible),
-      muted: v.muted,
-    };
+  function postTop(msg) {
     try {
       window.top.postMessage(msg, '*');
     } catch (e) {
       // 顶层页面不可达时什么也不做
     }
+  }
+
+  function report(v) {
+    const info = tracked.get(v);
+    if (!info) return;
+    postTop({
+      [MSG_KEY]: 1,
+      id: info.id,
+      order: framePath().concat(Array.prototype.indexOf.call(document.querySelectorAll('video'), v)),
+      state: videoState(v, info),
+      bufferingSince: info.bufferingSince,
+      current: v.currentTime,
+      duration: v.duration,
+      rate: v.playbackRate,
+      quiz: quizShown(),
+      muted: v.muted,
+    });
   }
 
   function scan() {
@@ -91,20 +129,49 @@
         report(v);
       } else {
         tracked.delete(v);
-        try {
-          window.top.postMessage({ [MSG_KEY]: 1, id: info.id, gone: true }, '*');
-        } catch (e) {
-          // 同上
-        }
+        postTop({ [MSG_KEY]: 1, id: info.id, gone: true });
       }
     }
   }
 
-  // 顶层页面要求播放某个视频（自动续播，或进入下一节后开始播放）。弹出题目时不播放，题目需要你自己作答。
+  // 本 frame 被关掉或跳走时，告诉顶层页面这些视频没了
+  window.addEventListener('pagehide', () => {
+    for (const info of tracked.values()) postTop({ [MSG_KEY]: 1, id: info.id, gone: true });
+  });
+
+  // 给"诊断"用：本 frame 里和视频、题目有关的情况。网址去掉了参数，里面有课程和账号相关的编号。
+  function frameDiag() {
+    const hints = new Set();
+    const els = document.querySelectorAll('[class]');
+    for (let i = 0; i < els.length && i < 5000 && hints.size < 15; i++) {
+      for (const c of els[i].classList) if (/quiz|topic|question|tk/i.test(c)) hints.add(c);
+    }
+    return {
+      path: framePath(),
+      url: location.origin + location.pathname,
+      iframes: document.querySelectorAll('iframe').length,
+      videos: Array.from(document.querySelectorAll('video')).map((v) => ({
+        state: v.ended ? 'ended' : v.paused ? 'paused' : 'playing',
+        readyState: v.readyState,
+        duration: Math.round(v.duration) || 0,
+        muted: v.muted,
+        src: v.currentSrc ? v.currentSrc.split(':')[0] : '(无)',
+      })),
+      quizMatches: document.querySelectorAll(QUIZ_SELECTOR).length,
+      quizVisible: quizShown(),
+      classHints: Array.from(hints),
+    };
+  }
+
   window.addEventListener('message', (e) => {
     const m = e.data;
-    if (!m || m[MSG_KEY] !== 1 || m.cmd !== 'play' || e.source !== window.top) return;
-    if (Array.from(document.querySelectorAll(QUIZ_SELECTOR)).some(isVisible)) return;
+    if (!m || m[MSG_KEY] !== 1 || e.source !== window.top) return;
+    if (m.cmd === 'diag') {
+      postTop({ [MSG_KEY]: 1, diag: frameDiag(), reqId: m.reqId });
+      return;
+    }
+    // 顶层页面要求播放某个视频（自动续播，或进入下一节后开始播放）。弹出题目时不播放，题目需要你自己作答。
+    if (m.cmd !== 'play' || quizShown()) return;
     for (const [v, info] of tracked) {
       if (info.id === m.id && v.paused && !v.ended) {
         const p = v.play();
@@ -131,30 +198,54 @@
   // 顶层页面：汇总所有 frame 的视频状态，显示面板，按需提醒
   // ---------------------------------------------------------------------------
 
+  // 设置存在扩展或 Tampermonkey 自己的存储里，学习通的各个子域名（mooc1、mooc1-1……）共用一份。
   const SETTINGS_KEY = 'xxtVideoMonitorSettings';
   const settings = { autoResume: true, autoNext: true, notify: true, sound: true, onlyBackground: true, collapsed: false };
+  const hasExtStorage = typeof chrome !== 'undefined' && !!(chrome.storage && chrome.storage.local);
   try {
+    // 旧版本存在页面 localStorage 里，先读出来当默认值
     Object.assign(settings, JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}'));
   } catch (e) {
     // 读不到就用默认值
   }
+  function loadSettings(cb) {
+    try {
+      if (typeof GM_getValue === 'function') return cb(GM_getValue(SETTINGS_KEY, null));
+      if (hasExtStorage) return chrome.storage.local.get(SETTINGS_KEY, (r) => cb(r && r[SETTINGS_KEY]));
+    } catch (e) {
+      // 扩展刚被重新加载时会读不到，用当前值
+    }
+    cb(null);
+  }
   function saveSettings() {
     try {
-      localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+      if (typeof GM_setValue === 'function') GM_setValue(SETTINGS_KEY, { ...settings });
+      else if (hasExtStorage) chrome.storage.local.set({ [SETTINGS_KEY]: { ...settings } });
+      else localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
     } catch (e) {
       // 存不了也不影响本次使用
     }
   }
 
-  // id -> { state, since, lastSeen, everPlayed, alerted, quiz, current, duration, rate, bufferingSince,
+  // id -> { order, state, since, lastSeen, everPlayed, alerted, quiz, current, duration, rate, bufferingSince,
   //         source, pausedInBackground, resumeTried, resumeTimes, resumes, gaveUp, autoStarted, muted }
   const videos = new Map();
 
+  // 按页面上的先后顺序排列
+  function sortedVideos() {
+    return Array.from(videos).sort(([, a], [, b]) => {
+      const x = a.order || [];
+      const y = b.order || [];
+      for (let i = 0; i < Math.min(x.length, y.length); i++) if (x[i] !== y[i]) return x[i] - y[i];
+      return x.length - y.length;
+    });
+  }
+
   // 自动进入下一节的进度。点"下一节"前在 sessionStorage 记一笔，这样学习通整页刷新后也能接着开始播放。
   const AUTO_START_KEY = 'xxtVideoMonitorAutoStart';
-  let allEndedAt = 0;       // 本页所有视频都播完的时间
-  let advanceFromKey = '';  // 正在从哪一节往下一节走（pageKey），同一节只尝试一次
-  let autoStartAt = 0;      // 进入下一节的时间，等新视频出现后开始播放
+  let allEndedAt = 0;   // 本页所有视频都播完的时间
+  let advance = null;   // 正在离开的那一节：{ key, ids }。同一节只尝试一次，进入新的一节后清空
+  let autoStartAt = 0;  // 进入下一节的时间，等新视频出现后开始播放
   try {
     const t = Number(sessionStorage.getItem(AUTO_START_KEY));
     if (t && Date.now() - t < AUTO_START_WAIT_MS) autoStartAt = t;
@@ -165,10 +256,15 @@
 
   window.addEventListener('message', (e) => {
     const m = e.data;
-    if (!m || m[MSG_KEY] !== 1 || m.cmd || typeof m.id !== 'string') return;
+    if (!m || m[MSG_KEY] !== 1 || m.cmd) return;
+    if (m.diag) {
+      onDiagReply(m);
+      return;
+    }
+    if (typeof m.id !== 'string') return;
     if (m.gone) {
       videos.delete(m.id);
-      render();
+      tick();
       return;
     }
     const now = Date.now();
@@ -184,6 +280,7 @@
       }
     }
     v.source = e.source;
+    v.order = m.order;
     if (m.state !== v.state) {
       v.state = m.state;
       v.since = now;
@@ -191,6 +288,11 @@
       v.resumeTried = false;
       // 你看着页面时暂停的，当作你自己按的暂停，不自动续播
       v.pausedInBackground = pageInBackground();
+      // 后台标签页的周期定时器会被浏览器压慢，到点要做的检查用一次性定时器另外安排
+      if (m.state === 'paused') {
+        setTimeout(tick, RESUME_DELAY_MS + 50);
+        setTimeout(tick, PAUSE_ALERT_MS + 50);
+      }
       if (m.state === 'ended' && v.everPlayed) {
         const next = settings.autoNext && nextUnplayedVideo();
         if (next) {
@@ -199,6 +301,8 @@
           next.v.source.postMessage({ [MSG_KEY]: 1, cmd: 'play', id: next.id, allowMuted: true }, '*');
         } else if (!settings.autoNext) {
           raiseAlert('视频播放完毕', '可以去看下一节了。');
+        } else {
+          setTimeout(tick, AUTO_NEXT_DELAY_MS + 50);
         }
       }
     }
@@ -218,13 +322,19 @@
     v.rate = m.rate;
     v.bufferingSince = m.bufferingSince;
     v.lastSeen = now;
-    render();
+    tick();
   });
 
-  setInterval(() => {
+  function tick() {
     const now = Date.now();
     for (const [id, v] of videos) {
-      if (now - v.lastSeen > STALE_MS) {
+      let closed = false;
+      try {
+        closed = !!(v.source && v.source.closed);
+      } catch (e) {
+        // 读不到就当还在
+      }
+      if (closed || now - v.lastSeen > STALE_MS) {
         videos.delete(id);
         continue;
       }
@@ -261,52 +371,70 @@
     }
     checkAutoNext(now);
     render();
-  }, 1000);
+  }
+  setInterval(tick, 1000);
 
   // ---- 自动进入下一节 ----
 
   function nextUnplayedVideo() {
-    for (const [id, v] of videos) {
+    for (const [id, v] of sortedVideos()) {
       if (v.state === 'paused' && !v.everPlayed && v.source) return { id, v };
     }
     return null;
   }
 
+  function chapterText() {
+    const el = document.querySelector(CHAPTER_SELECTOR);
+    return el ? el.textContent.trim() : '';
+  }
+
   function pageKey() {
-    const chapter = document.querySelector(CHAPTER_SELECTOR);
-    return location.href + '|' + (chapter ? chapter.textContent.trim() : '');
+    return location.href + '|' + chapterText();
+  }
+
+  // 是否已经离开了 a 记下的那一节。网址或章节标题变了算；不依赖它们也能判断：
+  // 出现了新视频，或者上一节的视频全都没了（学习通换节时会换掉视频所在的 iframe）。
+  function movedOn(a) {
+    if (pageKey() !== a.key) return true;
+    const ids = Array.from(videos.keys());
+    return ids.some((id) => !a.ids.has(id)) || !ids.some((id) => a.ids.has(id));
   }
 
   function findNextButton() {
     const el = document.querySelector(NEXT_SELECTOR);
-    if (el && isVisible(el)) return el;
+    if (el && isVisible(el)) return { el, how: '按 ' + NEXT_SELECTOR + ' 找到' };
     // 页面改版后按文字找，取最里层的那个元素来点
     for (const el of document.querySelectorAll('a, button, div, span')) {
       const t = el.textContent.trim();
       if ((t === '下一节' || t === '下一章') && isVisible(el) &&
           !Array.from(el.children).some((c) => c.textContent.trim() === t)) {
-        return el;
+        return { el, how: '按文字「' + t + '」找到' };
       }
     }
     return null;
   }
 
+  function clearAutoStart() {
+    autoStartAt = 0;
+    try {
+      sessionStorage.removeItem(AUTO_START_KEY);
+    } catch (e) {
+      // 同上
+    }
+  }
+
   function checkAutoNext(now) {
-    if (advanceFromKey && pageKey() !== advanceFromKey) {
+    if (advance && movedOn(advance)) {
       // 已经到了新的一节（自动或你手动切的）。上一节播完的视频立刻清掉，免得又被当成"本节已播完"连跳两节
-      advanceFromKey = '';
-      for (const [id, v] of videos) if (v.state === 'ended') videos.delete(id);
+      for (const id of advance.ids) if (videos.has(id) && videos.get(id).state === 'ended') videos.delete(id);
+      advance = null;
     }
     if (autoStartAt && now - autoStartAt > AUTO_START_WAIT_MS) {
       autoStartAt = 0;
       raiseAlert('新一节没有找到视频', '这一节可能是测验、文档，或者视频在别的标签页里，需要你回到页面处理。');
     }
-    if (!settings.autoNext || advanceFromKey || videos.size === 0) {
-      allEndedAt = 0;
-      return;
-    }
-    const all = Array.from(videos.values());
-    if (!all.every((v) => v.state === 'ended')) {
+    if (!settings.autoNext || advance || videos.size === 0 ||
+        !Array.from(videos.values()).every((v) => v.state === 'ended')) {
       allEndedAt = 0;
       return;
     }
@@ -314,34 +442,27 @@
     if (now - allEndedAt < AUTO_NEXT_DELAY_MS) return;
 
     allEndedAt = 0;
+    const a = { key: pageKey(), ids: new Set(videos.keys()) };
+    advance = a;
     const btn = findNextButton();
     if (!btn) {
-      advanceFromKey = pageKey();
       raiseAlert('本节视频已播完', '没有找到"下一节"按钮，可能已经是最后一节。');
       return;
     }
-    const before = pageKey();
-    advanceFromKey = before;
     try {
       sessionStorage.setItem(AUTO_START_KEY, String(now));
     } catch (e) {
       // 整页刷新后就不会自动开始播放，不影响别的
     }
     autoStartAt = now;
-    btn.click();
+    btn.el.click();
     setTimeout(() => {
-      if (pageKey() === before) {
+      if (advance === a && !movedOn(a)) {
         // 不去点学习通弹出的确认框：本节没完成的任务点要你自己决定
-        autoStartAt = 0;
-        try {
-          sessionStorage.removeItem(AUTO_START_KEY);
-        } catch (e) {
-          // 同上
-        }
+        clearAutoStart();
         raiseAlert('没能进入下一节', '本节可能还有任务点没完成（比如章节测验），已停在本节，需要你回到页面处理。');
-      } else {
-        advanceFromKey = '';
       }
+      tick();
     }, ADVANCE_CHECK_MS);
   }
 
@@ -379,12 +500,16 @@
   window.addEventListener('focus', clearTitleAlert);
 
   function notify(title, body) {
-    if (typeof GM_notification === 'function') {
-      GM_notification({ title, text: body, timeout: 10000, onclick: () => window.focus() });
-    } else if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.id) {
-      chrome.runtime.sendMessage({ type: 'xxt-notify', title, body });
-    } else if ('Notification' in window && Notification.permission === 'granted') {
-      new Notification(title, { body });
+    try {
+      if (typeof GM_notification === 'function') {
+        GM_notification({ title, text: body, timeout: 10000, onclick: () => window.focus() });
+      } else if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.id) {
+        chrome.runtime.sendMessage({ type: 'xxt-notify', title, body });
+      } else if ('Notification' in window && Notification.permission === 'granted') {
+        new Notification(title, { body });
+      }
+    } catch (e) {
+      // 扩展刚被重新加载、旧页面还没刷新时会走到这里，刷新页面即可
     }
   }
 
@@ -410,6 +535,123 @@
     }
   }
 
+  // ---- 诊断：把页面结构整理成一段文字，方便对照真实页面调整选择器 ----
+
+  let diagOpen = false;
+  let diagReq = null; // { id, replies: [] }
+
+  function allFrames(w, path, out) {
+    for (let i = 0; i < w.frames.length; i++) {
+      const f = w.frames[i];
+      out.push({ w: f, path: path.concat(i) });
+      try {
+        allFrames(f, path.concat(i), out);
+      } catch (e) {
+        // 读不到更深的层就算了
+      }
+    }
+    return out;
+  }
+
+  function onDiagReply(m) {
+    if (diagReq && m.reqId === diagReq.id) diagReq.replies.push(m.diag);
+  }
+
+  function describe(el) {
+    const id = el.id ? '#' + el.id : '';
+    const cls = el.classList.length ? '.' + Array.from(el.classList).join('.') : '';
+    return '<' + el.tagName.toLowerCase() + id + cls + '> "' + el.textContent.trim().slice(0, 20) + '"';
+  }
+
+  function runDiag() {
+    diagOpen = true;
+    render();
+    diagText.value = '正在收集……';
+    const req = { id: Math.random().toString(36).slice(2), replies: [] };
+    diagReq = req;
+    const frames = allFrames(window, [], []);
+    for (const f of frames) {
+      try {
+        f.w.postMessage({ [MSG_KEY]: 1, cmd: 'diag', reqId: req.id }, '*');
+      } catch (e) {
+        // 发不过去的会在报告里显示成"没有回应"
+      }
+    }
+    setTimeout(() => {
+      if (diagReq !== req) return;
+      diagText.value = buildDiag(frames, [frameDiag()].concat(req.replies));
+      copyDiag();
+    }, 1500);
+  }
+
+  function buildDiag(frames, replies) {
+    const lines = [];
+    const next = findNextButton();
+    const chapter = document.querySelector(CHAPTER_SELECTOR);
+    lines.push('学习通视频监测 诊断信息 v' + VERSION + '（' + (typeof GM_info !== 'undefined' ? 'Tampermonkey' : '扩展') + '）');
+    lines.push('浏览器：' + (navigator.userAgent.match(/Edg\/[\d.]+|Chrome\/[\d.]+/g) || []).join(' '));
+    lines.push('页面：' + location.origin + location.pathname + (pageInBackground() ? '（在后台）' : ''));
+    lines.push('章节标题：' + (chapter ? describe(chapter) : '没找到（' + CHAPTER_SELECTOR + '），用的是网页标题'));
+    lines.push('下一节按钮：' + (next ? next.how + ' ' + describe(next.el) : '没找到'));
+    const candidates = Array.from(document.querySelectorAll('a, button, div, span, li'))
+      .filter((el) => /下一|next/i.test(el.textContent.trim()) && el.textContent.trim().length <= 12 && isVisible(el))
+      .slice(0, 6);
+    if (candidates.length) lines.push('  页面上含"下一"的元素：' + candidates.map(describe).join('；'));
+    lines.push('设置：' + JSON.stringify(settings));
+    lines.push('监测到的视频：' + videos.size + ' 个' + (advance ? '（正在离开上一节）' : '') + (autoStartAt ? '（等待新一节视频）' : ''));
+    lines.push('');
+    lines.push('iframe 共 ' + frames.length + ' 个，' + (replies.length - 1) + ' 个有回应：');
+    replies.sort((a, b) => a.path.join(',').localeCompare(b.path.join(',')));
+    for (const r of replies) {
+      lines.push('[' + (r.path.join('-') || '顶层') + '] ' + r.url + ' ｜ 子iframe ' + r.iframes + ' ｜ 视频 ' + r.videos.length + ' 个' +
+        (r.videos.length ? ' ' + JSON.stringify(r.videos) : '') +
+        ' ｜ 弹题选择器命中 ' + r.quizMatches + (r.quizVisible ? '（显示中）' : '') +
+        (r.classHints.length ? ' ｜ 可能相关的 class：' + r.classHints.join(' ') : ''));
+    }
+    const answered = new Set(replies.map((r) => r.path.join('-')));
+    for (const f of frames) {
+      if (answered.has(f.path.join('-'))) continue;
+      let url = '跨域，读不到网址';
+      try {
+        url = f.w.location.href.split('?')[0];
+      } catch (e) {
+        // 保持"读不到"
+      }
+      lines.push('[' + f.path.join('-') + '] 没有回应（脚本没在这里运行）：' + url);
+    }
+    return lines.join('\n');
+  }
+
+  function copyDiag() {
+    const done = () => (diagStatus.textContent = '已复制，可以直接粘贴发出去');
+    const fallback = () => {
+      diagText.select();
+      try {
+        if (document.execCommand('copy')) return done();
+      } catch (e) {
+        // 再退一步：让你手动复制
+      }
+      diagStatus.textContent = '没能自动复制，请点「复制」或手动全选复制';
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(diagText.value).then(done, fallback);
+    } else {
+      fallback();
+    }
+  }
+
+  if (typeof GM_registerMenuCommand === 'function') GM_registerMenuCommand('生成诊断信息', runDiag);
+  try {
+    // 扩展版：点浏览器工具栏上的扩展图标也能生成（没有视频、面板不显示时也能用）
+    if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.onMessage) {
+      chrome.runtime.onMessage.addListener((msg) => {
+        if (msg && msg.type === 'xxt-diag') runDiag();
+      });
+    }
+  } catch (e) {
+    // 不是扩展环境
+  }
+
   // ---- 面板 ----
 
   const STATE_LABEL = {
@@ -428,6 +670,7 @@
              border: 1px solid #d1d5db; border-radius: 8px; box-shadow: 0 4px 16px rgba(0,0,0,.15);
              width: 260px; overflow: hidden; transition: box-shadow .2s; }
       .box.flash { box-shadow: 0 0 0 3px #f59e0b, 0 4px 16px rgba(0,0,0,.15); }
+      .box.diag-open { width: 420px; }
       .head { display: flex; align-items: center; justify-content: space-between; padding: 6px 10px;
               background: #f3f4f6; cursor: pointer; user-select: none; font-weight: 600; }
       .head small { font-weight: 400; color: #6b7280; }
@@ -438,11 +681,16 @@
       .row { display: flex; align-items: center; gap: 6px; padding: 2px 0; }
       .dot { width: 8px; height: 8px; border-radius: 50%; flex: none; }
       .time { margin-left: auto; font-variant-numeric: tabular-nums; color: #374151; }
+      .empty { color: #6b7280; }
       .opts { border-top: 1px solid #e5e7eb; margin-top: 8px; padding-top: 6px; }
       .opts label { display: block; cursor: pointer; }
       button { margin-top: 6px; font: inherit; padding: 2px 10px; border: 1px solid #d1d5db;
                border-radius: 4px; background: #fff; cursor: pointer; }
       button:hover { background: #f3f4f6; }
+      .diag { display: none; border-top: 1px solid #e5e7eb; margin-top: 8px; padding-top: 6px; }
+      .diag-open .diag { display: block; }
+      .diag textarea { width: 100%; box-sizing: border-box; height: 180px; font: 11px/1.4 Consolas, monospace; }
+      .diag .status { color: #6b7280; font-size: 12px; }
     </style>
     <div class="box">
       <div class="head"><span>视频监测</span><small class="summary"></small></div>
@@ -456,6 +704,13 @@
           <label><input type="checkbox" data-key="sound"> 提示音</label>
           <label><input type="checkbox" data-key="onlyBackground"> 只在页面不在前台时提醒</label>
           <button class="test">测试提醒</button>
+          <button class="run-diag">生成诊断</button>
+        </div>
+        <div class="diag">
+          <textarea readonly></textarea>
+          <div class="status"></div>
+          <button class="copy">复制</button>
+          <button class="close-diag">关闭</button>
         </div>
       </div>
     </div>`;
@@ -464,15 +719,19 @@
   const summaryEl = root.querySelector('.summary');
   const chapterEl = root.querySelector('.chapter');
   const listEl = root.querySelector('.list');
+  const diagText = root.querySelector('.diag textarea');
+  const diagStatus = root.querySelector('.diag .status');
 
-  box.classList.toggle('collapsed', settings.collapsed);
+  function syncSettingsUI() {
+    box.classList.toggle('collapsed', settings.collapsed);
+    for (const input of root.querySelectorAll('input[data-key]')) input.checked = !!settings[input.dataset.key];
+  }
   root.querySelector('.head').addEventListener('click', () => {
     settings.collapsed = !settings.collapsed;
-    box.classList.toggle('collapsed', settings.collapsed);
+    syncSettingsUI();
     saveSettings();
   });
   for (const input of root.querySelectorAll('input[data-key]')) {
-    input.checked = !!settings[input.dataset.key];
     input.addEventListener('change', () => {
       settings[input.dataset.key] = input.checked;
       saveSettings();
@@ -484,6 +743,20 @@
       Notification.requestPermission();
     }
     raiseAlert('测试提醒', '能看到这条通知、听到提示音，就说明提醒正常。', true);
+  });
+  root.querySelector('.run-diag').addEventListener('click', runDiag);
+  root.querySelector('.copy').addEventListener('click', copyDiag);
+  root.querySelector('.close-diag').addEventListener('click', () => {
+    diagOpen = false;
+    diagReq = null;
+    render();
+  });
+
+  syncSettingsUI();
+  loadSettings((saved) => {
+    if (saved && typeof saved === 'object') Object.assign(settings, saved);
+    else saveSettings(); // 第一次用新版本：把旧设置搬过去
+    syncSettingsUI();
   });
 
   let flashTimer = 0;
@@ -503,16 +776,24 @@
   }
 
   function render() {
-    const chapter = document.querySelector(CHAPTER_SELECTOR);
-    chapterEl.textContent = (chapter && chapter.textContent.trim()) || originalTitle;
+    chapterEl.textContent = chapterText() || originalTitle;
+    box.classList.toggle('diag-open', diagOpen);
+    if (diagOpen && settings.collapsed) {
+      settings.collapsed = false;
+      syncSettingsUI();
+    }
 
     // 只在发现视频的页面显示面板，学习通的其他页面（首页、作业、消息等）不受影响
-    host.style.display = videos.size === 0 ? 'none' : '';
-    if (videos.size === 0) return;
+    host.style.display = videos.size === 0 && !diagOpen ? 'none' : '';
+    if (videos.size === 0) {
+      listEl.innerHTML = '<div class="empty">本页没有发现视频</div>';
+      summaryEl.textContent = '';
+      return;
+    }
     listEl.textContent = '';
     let i = 0;
     let playing = 0;
-    for (const v of videos.values()) {
+    for (const [, v] of sortedVideos()) {
       i++;
       if (v.state === 'playing') playing++;
       const [label, color] = v.quiz ? ['弹出题目', '#dc2626'] : STATE_LABEL[v.state] || [v.state, '#6b7280'];
