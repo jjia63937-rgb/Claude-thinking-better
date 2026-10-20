@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "学习通视频播放监测",
-  "version": "1.1.0",
-  "description": "监测学习通页面里视频的播放状态，后台被暂停时自动继续播放；暂停、播完、卡住或弹出题目时提醒你。",
+  "version": "1.2.0",
+  "description": "监测学习通页面里视频的播放状态，后台被暂停时自动继续播放，播完自动进入下一节；暂停、播完、卡住或弹出题目时提醒你。",
   "permissions": ["notifications"],
   "background": { "service_worker": "background.js" },
   "content_scripts": [

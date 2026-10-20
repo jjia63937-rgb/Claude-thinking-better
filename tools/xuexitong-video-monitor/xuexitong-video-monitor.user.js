@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         学习通视频播放监测
 // @namespace    https://github.com/jjia63937-rgb/Claude-thinking-better
-// @version      1.1.0
-// @description  监测学习通页面（包括嵌套 iframe）里视频的播放状态。视频在后台被暂停时自动继续播放；暂停、播完、卡住或弹出题目时，用系统通知和提示音提醒你。
+// @version      1.2.0
+// @description  监测学习通页面（包括嵌套 iframe）里视频的播放状态。视频在后台被暂停时自动继续播放，播完自动进入下一节；暂停、播完、卡住或弹出题目时，用系统通知和提示音提醒你。
 // @match        *://*.chaoxing.com/*
 // @grant        GM_notification
 // @run-at       document-idle
@@ -20,11 +20,16 @@
   const QUIZ_SELECTOR = '.ans-videoquiz';
   // 用来在面板上显示当前章节名，找不到时退回 document.title。
   const CHAPTER_SELECTOR = '.prev_title, #mainid h1, .chapter_title';
+  // 学习通的"下一节"按钮。找不到时按按钮文字"下一节"查找。
+  const NEXT_SELECTOR = '#prevNextFocusNext';
 
   const PAUSE_ALERT_MS = 5000;    // 暂停超过这么久才提醒，避免拖进度条时误报
   const RESUME_DELAY_MS = 1500;   // 后台被暂停后等这么久再自动继续播放
   const MAX_RESUMES_PER_MIN = 5;  // 一分钟内自动续播超过这么多次就停下，避免和页面来回拉锯
   const STALL_ALERT_MS = 20000;   // 缓冲超过这么久算卡住
+  const AUTO_NEXT_DELAY_MS = 5000;   // 播完后等这么久再进下一节，给学习通留时间记录进度
+  const ADVANCE_CHECK_MS = 8000;     // 点了"下一节"这么久页面还没变，就当没进去
+  const AUTO_START_WAIT_MS = 20000;  // 进入下一节后等这么久还没发现视频，就提醒你
   const REPORT_INTERVAL_MS = 1000;
   const STALE_MS = 6000;          // 这么久没收到某个视频的汇报，就认为它所在的 iframe 已经关掉了
 
@@ -64,6 +69,7 @@
       duration: v.duration,
       rate: v.playbackRate,
       quiz: Array.from(document.querySelectorAll(QUIZ_SELECTOR)).some(isVisible),
+      muted: v.muted,
     };
     try {
       window.top.postMessage(msg, '*');
@@ -94,7 +100,7 @@
     }
   }
 
-  // 顶层页面要求自动继续播放某个视频。弹出题目时不播放，题目需要你自己作答。
+  // 顶层页面要求播放某个视频（自动续播，或进入下一节后开始播放）。弹出题目时不播放，题目需要你自己作答。
   window.addEventListener('message', (e) => {
     const m = e.data;
     if (!m || m[MSG_KEY] !== 1 || m.cmd !== 'play' || e.source !== window.top) return;
@@ -102,8 +108,16 @@
     for (const [v, info] of tracked) {
       if (info.id === m.id && v.paused && !v.ended) {
         const p = v.play();
-        // 播放失败时视频仍是暂停状态，顶层页面会照常发出"视频已暂停"的提醒
-        if (p) p.catch(() => {});
+        // 播放失败时视频仍是暂停状态，顶层页面会照常发出"视频已暂停"的提醒。
+        // 新一节的视频还没被你点过，浏览器可能不允许有声自动播放，这时退一步静音播放。
+        if (p) {
+          p.catch((err) => {
+            if (m.allowMuted && err && err.name === 'NotAllowedError') {
+              v.muted = true;
+              v.play().catch(() => {});
+            }
+          });
+        }
       }
     }
   });
@@ -118,7 +132,7 @@
   // ---------------------------------------------------------------------------
 
   const SETTINGS_KEY = 'xxtVideoMonitorSettings';
-  const settings = { autoResume: true, notify: true, sound: true, onlyBackground: true, collapsed: false };
+  const settings = { autoResume: true, autoNext: true, notify: true, sound: true, onlyBackground: true, collapsed: false };
   try {
     Object.assign(settings, JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}'));
   } catch (e) {
@@ -133,8 +147,21 @@
   }
 
   // id -> { state, since, lastSeen, everPlayed, alerted, quiz, current, duration, rate, bufferingSince,
-  //         source, pausedInBackground, resumeTried, resumeTimes, resumes, gaveUp }
+  //         source, pausedInBackground, resumeTried, resumeTimes, resumes, gaveUp, autoStarted, muted }
   const videos = new Map();
+
+  // 自动进入下一节的进度。点"下一节"前在 sessionStorage 记一笔，这样学习通整页刷新后也能接着开始播放。
+  const AUTO_START_KEY = 'xxtVideoMonitorAutoStart';
+  let allEndedAt = 0;       // 本页所有视频都播完的时间
+  let advanceFromKey = '';  // 正在从哪一节往下一节走（pageKey），同一节只尝试一次
+  let autoStartAt = 0;      // 进入下一节的时间，等新视频出现后开始播放
+  try {
+    const t = Number(sessionStorage.getItem(AUTO_START_KEY));
+    if (t && Date.now() - t < AUTO_START_WAIT_MS) autoStartAt = t;
+    sessionStorage.removeItem(AUTO_START_KEY);
+  } catch (e) {
+    // 读不到就不接着播
+  }
 
   window.addEventListener('message', (e) => {
     const m = e.data;
@@ -149,6 +176,12 @@
     if (!v) {
       v = { state: m.state, since: now, everPlayed: false, alerted: false, quiz: false, resumeTimes: [], resumes: 0 };
       videos.set(m.id, v);
+      // 刚进入下一节，开始播放新出现的第一个视频
+      if (autoStartAt && settings.autoNext && m.state === 'paused') {
+        autoStartAt = 0;
+        v.autoStarted = true;
+        e.source.postMessage({ [MSG_KEY]: 1, cmd: 'play', id: m.id, allowMuted: true }, '*');
+      }
     }
     v.source = e.source;
     if (m.state !== v.state) {
@@ -158,13 +191,26 @@
       v.resumeTried = false;
       // 你看着页面时暂停的，当作你自己按的暂停，不自动续播
       v.pausedInBackground = pageInBackground();
-      if (m.state === 'ended' && v.everPlayed) raiseAlert('视频播放完毕', '可以去看下一节了。');
+      if (m.state === 'ended' && v.everPlayed) {
+        const next = settings.autoNext && nextUnplayedVideo();
+        if (next) {
+          // 同一页还有没看的视频，先播它
+          next.v.autoStarted = true;
+          next.v.source.postMessage({ [MSG_KEY]: 1, cmd: 'play', id: next.id, allowMuted: true }, '*');
+        } else if (!settings.autoNext) {
+          raiseAlert('视频播放完毕', '可以去看下一节了。');
+        }
+      }
     }
     if (m.state === 'playing') {
       v.everPlayed = true;
       // 你回到页面重新播放后，之前放弃的自动续播重新生效
       if (!pageInBackground()) v.gaveUp = false;
     }
+    if (m.muted && !v.muted && v.autoStarted) {
+      raiseAlert('视频在静音播放', '浏览器不允许自动播放有声视频，已改为静音播放。回到页面可以取消静音。');
+    }
+    v.muted = !!m.muted;
     if (m.quiz && !v.quiz) raiseAlert('视频中弹出了题目', '回到页面作答后视频才会继续。');
     v.quiz = !!m.quiz;
     v.current = m.current;
@@ -213,8 +259,91 @@
         raiseAlert('视频卡住了', '已经缓冲超过 ' + STALL_ALERT_MS / 1000 + ' 秒，可以刷新或换线路。');
       }
     }
+    checkAutoNext(now);
     render();
   }, 1000);
+
+  // ---- 自动进入下一节 ----
+
+  function nextUnplayedVideo() {
+    for (const [id, v] of videos) {
+      if (v.state === 'paused' && !v.everPlayed && v.source) return { id, v };
+    }
+    return null;
+  }
+
+  function pageKey() {
+    const chapter = document.querySelector(CHAPTER_SELECTOR);
+    return location.href + '|' + (chapter ? chapter.textContent.trim() : '');
+  }
+
+  function findNextButton() {
+    const el = document.querySelector(NEXT_SELECTOR);
+    if (el && isVisible(el)) return el;
+    // 页面改版后按文字找，取最里层的那个元素来点
+    for (const el of document.querySelectorAll('a, button, div, span')) {
+      const t = el.textContent.trim();
+      if ((t === '下一节' || t === '下一章') && isVisible(el) &&
+          !Array.from(el.children).some((c) => c.textContent.trim() === t)) {
+        return el;
+      }
+    }
+    return null;
+  }
+
+  function checkAutoNext(now) {
+    if (advanceFromKey && pageKey() !== advanceFromKey) {
+      // 已经到了新的一节（自动或你手动切的）。上一节播完的视频立刻清掉，免得又被当成"本节已播完"连跳两节
+      advanceFromKey = '';
+      for (const [id, v] of videos) if (v.state === 'ended') videos.delete(id);
+    }
+    if (autoStartAt && now - autoStartAt > AUTO_START_WAIT_MS) {
+      autoStartAt = 0;
+      raiseAlert('新一节没有找到视频', '这一节可能是测验、文档，或者视频在别的标签页里，需要你回到页面处理。');
+    }
+    if (!settings.autoNext || advanceFromKey || videos.size === 0) {
+      allEndedAt = 0;
+      return;
+    }
+    const all = Array.from(videos.values());
+    if (!all.every((v) => v.state === 'ended')) {
+      allEndedAt = 0;
+      return;
+    }
+    if (!allEndedAt) allEndedAt = now;
+    if (now - allEndedAt < AUTO_NEXT_DELAY_MS) return;
+
+    allEndedAt = 0;
+    const btn = findNextButton();
+    if (!btn) {
+      advanceFromKey = pageKey();
+      raiseAlert('本节视频已播完', '没有找到"下一节"按钮，可能已经是最后一节。');
+      return;
+    }
+    const before = pageKey();
+    advanceFromKey = before;
+    try {
+      sessionStorage.setItem(AUTO_START_KEY, String(now));
+    } catch (e) {
+      // 整页刷新后就不会自动开始播放，不影响别的
+    }
+    autoStartAt = now;
+    btn.click();
+    setTimeout(() => {
+      if (pageKey() === before) {
+        // 不去点学习通弹出的确认框：本节没完成的任务点要你自己决定
+        autoStartAt = 0;
+        try {
+          sessionStorage.removeItem(AUTO_START_KEY);
+        } catch (e) {
+          // 同上
+        }
+        raiseAlert('没能进入下一节', '本节可能还有任务点没完成（比如章节测验），已停在本节，需要你回到页面处理。');
+      } else {
+        advanceFromKey = '';
+      }
+    }, ADVANCE_CHECK_MS);
+  }
 
   // ---- 提醒 ----
 
@@ -322,6 +451,7 @@
         <div class="list"></div>
         <div class="opts">
           <label><input type="checkbox" data-key="autoResume"> 后台被暂停时自动继续播放</label>
+          <label><input type="checkbox" data-key="autoNext"> 播完自动播放下一节</label>
           <label><input type="checkbox" data-key="notify"> 系统通知</label>
           <label><input type="checkbox" data-key="sound"> 提示音</label>
           <label><input type="checkbox" data-key="onlyBackground"> 只在页面不在前台时提醒</label>
@@ -392,14 +522,17 @@
       dot.className = 'dot';
       dot.style.background = color;
       const text = document.createElement('span');
-      text.textContent = (videos.size > 1 ? '视频 ' + i + ' · ' : '') + label + (v.resumes ? ' · 已续播 ' + v.resumes + ' 次' : '');
+      text.textContent = (videos.size > 1 ? '视频 ' + i + ' · ' : '') + label +
+        (v.muted ? ' · 静音' : '') + (v.resumes ? ' · 已续播 ' + v.resumes + ' 次' : '');
       const time = document.createElement('span');
       time.className = 'time';
       time.textContent = fmt(v.current) + ' / ' + fmt(v.duration) + (v.rate && v.rate !== 1 ? ' ×' + v.rate : '');
       row.append(dot, text, time);
       listEl.append(row);
     }
-    summaryEl.textContent = playing ? playing + ' 个播放中' : '无播放';
+    summaryEl.textContent = allEndedAt
+      ? Math.max(1, Math.ceil((AUTO_NEXT_DELAY_MS - (Date.now() - allEndedAt)) / 1000)) + ' 秒后下一节'
+      : playing ? playing + ' 个播放中' : '无播放';
   }
 
   render();
