@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         学习通视频播放监测
 // @namespace    https://github.com/jjia63937-rgb/Claude-thinking-better
-// @version      1.0.0
+// @version      1.0.1
 // @description  监测学习通页面（包括嵌套 iframe）里视频的播放状态。视频暂停、播完、卡住或弹出题目时，用系统通知和提示音提醒你。只读取状态，不改变播放行为。
 // @match        *://*.chaoxing.com/*
 // @grant        GM_notification
@@ -262,7 +262,6 @@
       .row { display: flex; align-items: center; gap: 6px; padding: 2px 0; }
       .dot { width: 8px; height: 8px; border-radius: 50%; flex: none; }
       .time { margin-left: auto; font-variant-numeric: tabular-nums; color: #374151; }
-      .empty { color: #6b7280; }
       .opts { border-top: 1px solid #e5e7eb; margin-top: 8px; padding-top: 6px; }
       .opts label { display: block; cursor: pointer; }
       button { margin-top: 6px; font: inherit; padding: 2px 10px; border: 1px solid #d1d5db;
@@ -329,11 +328,9 @@
     const chapter = document.querySelector(CHAPTER_SELECTOR);
     chapterEl.textContent = (chapter && chapter.textContent.trim()) || originalTitle;
 
-    if (videos.size === 0) {
-      listEl.innerHTML = '<div class="empty">本页还没有发现视频</div>';
-      summaryEl.textContent = '';
-      return;
-    }
+    // 只在发现视频的页面显示面板，学习通的其他页面（首页、作业、消息等）不受影响
+    host.style.display = videos.size === 0 ? 'none' : '';
+    if (videos.size === 0) return;
     listEl.textContent = '';
     let i = 0;
     let playing = 0;
