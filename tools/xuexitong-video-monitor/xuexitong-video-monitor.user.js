@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         学习通视频播放监测
 // @namespace    https://github.com/jjia63937-rgb/Claude-thinking-better
-// @version      1.0.1
-// @description  监测学习通页面（包括嵌套 iframe）里视频的播放状态。视频暂停、播完、卡住或弹出题目时，用系统通知和提示音提醒你。只读取状态，不改变播放行为。
+// @version      1.1.0
+// @description  监测学习通页面（包括嵌套 iframe）里视频的播放状态。视频在后台被暂停时自动继续播放；暂停、播完、卡住或弹出题目时，用系统通知和提示音提醒你。
 // @match        *://*.chaoxing.com/*
 // @grant        GM_notification
 // @run-at       document-idle
@@ -22,6 +22,8 @@
   const CHAPTER_SELECTOR = '.prev_title, #mainid h1, .chapter_title';
 
   const PAUSE_ALERT_MS = 5000;    // 暂停超过这么久才提醒，避免拖进度条时误报
+  const RESUME_DELAY_MS = 1500;   // 后台被暂停后等这么久再自动继续播放
+  const MAX_RESUMES_PER_MIN = 5;  // 一分钟内自动续播超过这么多次就停下，避免和页面来回拉锯
   const STALL_ALERT_MS = 20000;   // 缓冲超过这么久算卡住
   const REPORT_INTERVAL_MS = 1000;
   const STALE_MS = 6000;          // 这么久没收到某个视频的汇报，就认为它所在的 iframe 已经关掉了
@@ -92,6 +94,20 @@
     }
   }
 
+  // 顶层页面要求自动继续播放某个视频。弹出题目时不播放，题目需要你自己作答。
+  window.addEventListener('message', (e) => {
+    const m = e.data;
+    if (!m || m[MSG_KEY] !== 1 || m.cmd !== 'play' || e.source !== window.top) return;
+    if (Array.from(document.querySelectorAll(QUIZ_SELECTOR)).some(isVisible)) return;
+    for (const [v, info] of tracked) {
+      if (info.id === m.id && v.paused && !v.ended) {
+        const p = v.play();
+        // 播放失败时视频仍是暂停状态，顶层页面会照常发出"视频已暂停"的提醒
+        if (p) p.catch(() => {});
+      }
+    }
+  });
+
   setInterval(scan, REPORT_INTERVAL_MS);
   scan();
 
@@ -102,7 +118,7 @@
   // ---------------------------------------------------------------------------
 
   const SETTINGS_KEY = 'xxtVideoMonitorSettings';
-  const settings = { notify: true, sound: true, onlyBackground: true, collapsed: false };
+  const settings = { autoResume: true, notify: true, sound: true, onlyBackground: true, collapsed: false };
   try {
     Object.assign(settings, JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}'));
   } catch (e) {
@@ -116,12 +132,13 @@
     }
   }
 
-  // id -> { state, since, lastSeen, everPlayed, alerted, quiz, current, duration, rate, bufferingSince }
+  // id -> { state, since, lastSeen, everPlayed, alerted, quiz, current, duration, rate, bufferingSince,
+  //         source, pausedInBackground, resumeTried, resumeTimes, resumes, gaveUp }
   const videos = new Map();
 
   window.addEventListener('message', (e) => {
     const m = e.data;
-    if (!m || m[MSG_KEY] !== 1 || typeof m.id !== 'string') return;
+    if (!m || m[MSG_KEY] !== 1 || m.cmd || typeof m.id !== 'string') return;
     if (m.gone) {
       videos.delete(m.id);
       render();
@@ -130,16 +147,24 @@
     const now = Date.now();
     let v = videos.get(m.id);
     if (!v) {
-      v = { state: m.state, since: now, everPlayed: false, alerted: false, quiz: false };
+      v = { state: m.state, since: now, everPlayed: false, alerted: false, quiz: false, resumeTimes: [], resumes: 0 };
       videos.set(m.id, v);
     }
+    v.source = e.source;
     if (m.state !== v.state) {
       v.state = m.state;
       v.since = now;
       v.alerted = false;
+      v.resumeTried = false;
+      // 你看着页面时暂停的，当作你自己按的暂停，不自动续播
+      v.pausedInBackground = pageInBackground();
       if (m.state === 'ended' && v.everPlayed) raiseAlert('视频播放完毕', '可以去看下一节了。');
     }
-    if (m.state === 'playing') v.everPlayed = true;
+    if (m.state === 'playing') {
+      v.everPlayed = true;
+      // 你回到页面重新播放后，之前放弃的自动续播重新生效
+      if (!pageInBackground()) v.gaveUp = false;
+    }
     if (m.quiz && !v.quiz) raiseAlert('视频中弹出了题目', '回到页面作答后视频才会继续。');
     v.quiz = !!m.quiz;
     v.current = m.current;
@@ -157,10 +182,32 @@
         videos.delete(id);
         continue;
       }
+      if (
+        settings.autoResume && v.state === 'paused' && v.everPlayed && !v.quiz &&
+        v.pausedInBackground && !v.resumeTried && !v.gaveUp && v.source && now - v.since >= RESUME_DELAY_MS
+      ) {
+        v.resumeTried = true;
+        v.resumeTimes = v.resumeTimes.filter((t) => now - t < 60000);
+        if (v.resumeTimes.length >= MAX_RESUMES_PER_MIN) {
+          v.gaveUp = true;
+        } else {
+          v.resumeTimes.push(now);
+          v.resumes++;
+          v.source.postMessage({ [MSG_KEY]: 1, cmd: 'play', id }, '*');
+        }
+      }
       if (v.alerted) continue;
+      // 自动续播成功的话视频早就回到播放状态了，还停在暂停说明需要你处理
       if (v.state === 'paused' && v.everPlayed && !v.quiz && now - v.since >= PAUSE_ALERT_MS) {
         v.alerted = true;
-        raiseAlert('视频已暂停', '学习通在页面失去焦点时常会自动暂停视频。');
+        raiseAlert(
+          '视频已暂停',
+          v.gaveUp
+            ? '视频一分钟内被反复暂停，已停止自动继续播放，需要你回到页面处理。'
+            : v.resumeTried
+              ? '自动继续播放没有成功，需要你回到页面处理。'
+              : '学习通在页面失去焦点时常会自动暂停视频。'
+        );
       } else if (v.state === 'buffering' && v.bufferingSince && now - v.bufferingSince >= STALL_ALERT_MS) {
         v.alerted = true;
         raiseAlert('视频卡住了', '已经缓冲超过 ' + STALL_ALERT_MS / 1000 + ' 秒，可以刷新或换线路。');
@@ -274,6 +321,7 @@
         <div class="chapter"></div>
         <div class="list"></div>
         <div class="opts">
+          <label><input type="checkbox" data-key="autoResume"> 后台被暂停时自动继续播放</label>
           <label><input type="checkbox" data-key="notify"> 系统通知</label>
           <label><input type="checkbox" data-key="sound"> 提示音</label>
           <label><input type="checkbox" data-key="onlyBackground"> 只在页面不在前台时提醒</label>
@@ -344,7 +392,7 @@
       dot.className = 'dot';
       dot.style.background = color;
       const text = document.createElement('span');
-      text.textContent = (videos.size > 1 ? '视频 ' + i + ' · ' : '') + label;
+      text.textContent = (videos.size > 1 ? '视频 ' + i + ' · ' : '') + label + (v.resumes ? ' · 已续播 ' + v.resumes + ' 次' : '');
       const time = document.createElement('span');
       time.className = 'time';
       time.textContent = fmt(v.current) + ' / ' + fmt(v.duration) + (v.rate && v.rate !== 1 ? ' ×' + v.rate : '');
