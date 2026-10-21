@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">虚拟定位</string>
+    <string name="mode_point">定点</string>
+    <string name="mode_route">路线</string>
+    <string name="hint_lat">纬度，或粘贴「纬度,经度」</string>
+    <string name="hint_lng">经度</string>
+    <string name="hint_speed">速度 km/h</string>
+    <string name="go">定位</string>
+    <string name="loop">循环</string>
+    <string name="clear_route">清除路线</string>
+    <string name="start">开始模拟</string>
+    <string name="stop">停止</string>
+    <string name="save_favorite">收藏</string>
+    <string name="favorites">收藏夹</string>
+    <string name="status_idle">点地图选位置，或输入坐标后点「定位」</string>
+    <string-array name="coord_systems">
+        <item>WGS-84（GPS / OpenStreetMap）</item>
+        <item>GCJ-02（高德 / 腾讯 / 谷歌中国）</item>
+        <item>BD-09（百度）</item>
+    </string-array>
+    <string name="need_mock_title">还没设为模拟位置应用</string>
+    <string name="need_mock_message">请打开「开发者选项」→「选择模拟位置信息应用」，选择「虚拟定位」，然后回来重新点「开始模拟」。\n\n如果找不到开发者选项：设置 → 关于手机 → 连续点「版本号」7 次。</string>
+    <string name="open_developer_options">打开开发者选项</string>
+    <string name="cancel">取消</string>
+    <string name="notification_channel">虚拟定位运行状态</string>
+</resources>
